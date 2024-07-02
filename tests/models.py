@@ -19,13 +19,13 @@ class Test(models.Model):
 class Question(models.Model):
     question = models.CharField(max_length=255)
     test_id = models.ForeignKey(Test, on_delete = models.CASCADE)
-    multiple_ans = models.BooleanField()
+    multiple_ans = models.BooleanField(default=False)
     
 
 class Answer(models.Model):
     question_id = models.ForeignKey(Question, on_delete = models.CASCADE)
     answer = models.CharField(max_length=255)
-    right_answer = models.BooleanField()
+    right_answer = models.BooleanField(default=False)
     
     
 class Result(models.Model):
