@@ -19,6 +19,7 @@ class Test(models.Model):
 class Question(models.Model):
     question = models.CharField(max_length=255)
     test_id = models.ForeignKey(Test, on_delete = models.CASCADE)
+    multiple_ans = models.BooleanField()
     
 
 class Answer(models.Model):
