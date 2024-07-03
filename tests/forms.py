@@ -7,17 +7,17 @@ class ValidTest(forms.Form):
     time = forms.TimeField()
     title = forms.CharField(max_length=60)
     description = forms.CharField(max_length=255)
-    author = forms.CharField()
-    questions = forms.CharField()    
+    author = forms.CharField() # временное решение, потом будем получать из сеанса
+    questions = forms.JSONField()    
 
 
 class ValidQuestion(forms.Form):
     question = forms.CharField(max_length=255)
     multiple_ans = forms.BooleanField()
-    answers = forms.CharField()
+    answers = forms.JSONField()
     
     
 class ValidAnswer(forms.Form):
     answer = forms.CharField(max_length=255)
-    right_anwer = forms.BooleanField()
+    right_answer = forms.BooleanField()
     
