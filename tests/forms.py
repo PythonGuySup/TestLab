@@ -16,3 +16,8 @@ class ValidQuestion(forms.Form):
     multiple_ans = forms.BooleanField()
     answers = forms.CharField()
     
+    
+class ValidAnswer(forms.Form):
+    answer = forms.CharField(max_length=255)
+    right_anwer = forms.BooleanField()
+    
