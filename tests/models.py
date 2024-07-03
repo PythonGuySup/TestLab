@@ -10,8 +10,9 @@ class Category(models.Model):
 class Test(models.Model):
     category = models.ForeignKey(Category, on_delete = models.CASCADE)
     time = models.TimeField()
+    title = models.CharField(max_length=60)
     description = models.CharField(max_length=255)
-    autor = models.ForeignKey(User, on_delete = models.CASCADE)
+    author = models.ForeignKey(User, on_delete = models.CASCADE)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
     
