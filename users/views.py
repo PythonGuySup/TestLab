@@ -4,6 +4,9 @@ from django.contrib import messages
 from .forms import RegistrationForm
 from main.views import home_redirect
 
+def profile(request):
+    return render(request, 'profile.html')
+  
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
