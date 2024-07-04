@@ -28,8 +28,7 @@ def create_test(test_form):
 def constructor(request):
     if request.method == 'POST':
         try:
-            transaction.set_autocommit(False)
-            
+
             try:
                 params_json = json.loads(request.body)
             except:
@@ -65,8 +64,7 @@ def constructor(request):
                 transaction.set_rollback(True)
                 return HttpResponseBadRequest('invalid data:' + str(params_json))
             
-            # transaction.commit() выключил для тестов
-            transaction.set_autocommit(True)
+            transaction.set_rollback(True) # отключил транзакцию для тестов
             return HttpResponse("Test add sucsessfull")
         
         except Exception as E:
