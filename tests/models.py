@@ -9,31 +9,31 @@ class Category(models.Model):
 
 
 class Test(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    time = models.TimeField()
-    title = models.CharField(max_length=60)
-    description = models.CharField(max_length=255)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
+    time = models.TimeField(null=True)
+    title = models.CharField(max_length=60, null=True)
+    description = models.CharField(max_length=255, null=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    created_at = models.DateTimeField(null=True)
+    updated_at = models.DateTimeField(null=True)
 
 
 class Question(models.Model):
-    question = models.CharField(max_length=255)
-    test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    question = models.CharField(max_length=255, null=True)
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, null=True)
     multiple_ans = models.BooleanField(default=False)
 
 
 class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    answer = models.CharField(max_length=255)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, null=True)
+    answer = models.CharField(max_length=255, null=True)
     right_answer = models.BooleanField(default=False)
 
 
 class Result(models.Model):
-    test = models.ForeignKey(Test, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    mark = models.FloatField()
-    start_at = models.DateTimeField()
-    finish_at = models.DateTimeField()
-    time = models.TimeField()
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    mark = models.FloatField(null=True)
+    start_at = models.DateTimeField(null=True)
+    finish_at = models.DateTimeField(null=True)
+    time = models.TimeField(null=True)
