@@ -19,7 +19,7 @@ def home_page(request, pg):
     pages_iterator = [i for i in range(1, how_many_pages_ + 1)]
     context = {'tests': tests_to_response, 'pages': pages_iterator, 'last_page': how_many_pages_}
 
-    return render(request, 'main/templates/main.html', context)
+    return render(request, 'main.html', context)
 
 
 def home_redirect(request):
