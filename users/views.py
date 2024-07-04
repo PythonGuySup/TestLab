@@ -20,3 +20,7 @@ def register(request):
     else:
         form = RegistrationForm()
     return render(request, 'registration.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return redirect(home_redirect)
