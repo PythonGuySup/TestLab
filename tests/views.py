@@ -6,47 +6,34 @@ from tests.models import Test, Question, Answer, Category, User
 from datetime import datetime
 from json import JSONDecodeError, loads
 
-def create_test(test_form):
-    test = Test()
+def create_test(test):
+
+    test.instance.category = Category.objects.get(name=test.cleaned_data['category'])
+    user = test.cleaned_data['author'] # временное решение, потом будем получать из сеанса
     
-    test.category = Category.objects.get(name=test_form.cleaned_data['category'])
-    test.time = test_form.cleaned_data['time']
-    test.title = test_form.cleaned_data['title']
-    test.description = test_form.cleaned_data['description']
-    user = test_form.cleaned_data['author'] # временное решение, потом будем получать из сеанса
-    test.author = User.objects.get(username=user)
-    test.created_at = datetime.now()
-    test.updated_at = test.created_at
+    test.instance.author = User.objects.get(username=user)
+    test.instance.created_at = datetime.now()
+    test.instance.updated_at = test.instance.created_at
     
     test.save()
+
     
-    return test
     
-    
-def create_question(question_form, test):
-    question = Question()
-    
-    question.question = question_form.cleaned_data['question']
-    question.test = test
-    question.multiple_ans = question_form.cleaned_data['multiple_ans']
+def create_question(question, test):
+
+    question.instance.test = test
     
     question.save()
-    
-    return question
 
 
-def create_answer(answer_form, question):
-    answer = Answer()
+
+def create_answer(answer, question):
     
-    answer.question = question
-    answer.answer = answer_form.cleaned_data['answer']
-    answer.right_answer = answer_form.cleaned_data['right_answer']
-     
+    answer.instance.question = question
     answer.save()
-    
-    return answer
-    
 
+    
+@transaction.atomic
 def constructor_post(request):
     try:
 
@@ -56,7 +43,7 @@ def constructor_post(request):
         
         if test_form.is_valid():
             
-            test = create_test(test_form)
+            create_test(test_form)
             
             for question_json in test_form.cleaned_data['questions'].values():
                 
@@ -64,13 +51,13 @@ def constructor_post(request):
                 
                 if question_form.is_valid():
                     
-                    question = create_question(question_form, test)
+                    question = create_question(question_form, test_form.instance)
                     
                     for answer_json in question_form.cleaned_data['answers'].values():
                         answer_form = ValidAnswer(answer_json)
                         if answer_form.is_valid():
                             
-                            answer = create_answer(answer_form, question)    
+                            create_answer(answer_form, question_form.instance)    
 
                         else:
                             transaction.set_rollback(True)
@@ -98,12 +85,11 @@ def constructor_post(request):
     
 
 def constructor_get(resuest):
-    form = ValidAnswer()
-    return render(resuest, 'constructor.html', context={'form': form})
+    return render(resuest, 'constructor.html')
     
     
 # Create your views here.
-@transaction.atomic
+
 def constructor(request):
     if request.method == 'POST':
         return constructor_post(request)
@@ -111,3 +97,5 @@ def constructor(request):
         return constructor_get(request)
     
     # return render(request, 'get_tocken.html') получение токена для postman
+    
+    
