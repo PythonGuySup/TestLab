@@ -1,23 +1,28 @@
 from django import forms
-import tests.models
+from tests.models import Test, Question, Answer
 
 
-class ValidTest(forms.Form):
-    category = forms.CharField(max_length=50)
-    time = forms.TimeField()
-    title = forms.CharField(max_length=60)
-    description = forms.CharField(max_length=255)
-    author = forms.CharField() # временное решение, потом будем получать из сеанса
+class ValidTest(forms.ModelForm):
+    
+    class Meta:
+        model = Test
+        fields = ['time', 'title', 'description']
+    
     questions = forms.JSONField()    
+    category = forms.CharField(max_length=50)
+    author = forms.CharField()
 
+class ValidQuestion(forms.ModelForm):
+    
+    class Meta:
+        model = Question
+        fields = ['question', 'multiple_ans']
 
-class ValidQuestion(forms.Form):
-    question = forms.CharField(max_length=255)
-    multiple_ans = forms.BooleanField()
     answers = forms.JSONField()
     
     
-class ValidAnswer(forms.Form):
-    answer = forms.CharField(max_length=255)
-    right_answer = forms.BooleanField()
+class ValidAnswer(forms.ModelForm):
+    class Meta:
+        model = Answer
+        fields = ['answer', 'right_answer']
     
