@@ -1,0 +1,52 @@
+{% extends "main/../../main/templates/base.html" %}
+
+{% block logo_title %} TestLab {% endblock logo_title %}
+{% block page1 %} Главная {% endblock page1 %}
+{% block page2 %} Конструктор {% endblock page2 %}
+{% block account %} Акк {% endblock account %}
+
+
+{% block content %}
+    .
+<main class="container mt-5">
+    <div class="row">
+        <aside class="col-md-3 pl-0">
+            <ul class="nav flex-column">
+                <li class="nav-item mb-3">
+                    <a class="nav-link active" href="#">Профиль</a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="#">Статистика</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Мои тесты</a>
+                </li>
+            </ul>
+        </aside>
+        <section class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Профиль</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p><strong>Имя:</strong> Иван</p>
+                            <p><strong>Фамилия:</strong> Петрович</p>
+                            <p><strong>Почта:</strong> example@gmail.com</p>
+                            <p><strong>Информация о себе:</strong> Студент ИТИС 11-694 3 курс. Джава в венах, люблю котиков.</p>
+                            <p><strong>Логин:</strong> ivanpetrov2 </p>
+                            <p><strong>Пароль:</strong> ******** </p>
+
+                            <button type="button" class="btn btn-primary btn-sm">Изменить</button>
+                        </div>
+                        <div class="col-md-4">
+                            <img src="path_to_image" alt="Фото" class="img-thumbnail">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock content %}
