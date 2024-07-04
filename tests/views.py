@@ -23,6 +23,29 @@ def create_test(test_form):
     return test
     
     
+def create_question(question_form, test):
+    question = Question()
+    
+    question.question = question_form.cleaned_data['question']
+    question.test = test
+    question.multiple_ans = question_form.cleaned_data['multiple_ans']
+    
+    question.save()
+    
+    return question
+
+
+def create_answer(answer_form, question):
+    answer = Answer()
+    
+    answer.question = question
+    answer.answer = answer_form.cleaned_data['answer']
+    answer.right_answer = answer_form.cleaned_data['right_answer']
+     
+    answer.save()
+    
+    return answer
+    
 # Create your views here.
 @transaction.atomic
 def constructor(request):
@@ -45,13 +68,15 @@ def constructor(request):
                     question_form = ValidQuestion(question_json)
                     
                     if question_form.is_valid():
-
+                        
+                        question = create_question(question_form, test)
+                        
                         for answer_json in question_form.cleaned_data['answers'].values():
                             answer_form = ValidAnswer(answer_json)
                             if answer_form.is_valid():
                                 
-                                pass    
-                            
+                                answer = create_answer(answer_form, question)    
+
                             else:
                                 transaction.set_rollback(True)
                                 return HttpResponseBadRequest('invalid answer:' + str(answer_json))
@@ -64,7 +89,7 @@ def constructor(request):
                 transaction.set_rollback(True)
                 return HttpResponseBadRequest('invalid data:' + str(params_json))
             
-            transaction.set_rollback(True) # отключил транзакцию для тестов
+            # transaction.set_rollback(True) # отключил транзакцию для тестов
             return HttpResponse("Test add sucsessfull")
         
         except Exception as E:
