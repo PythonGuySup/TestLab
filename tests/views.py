@@ -1,10 +1,32 @@
 from django.shortcuts import render
+from .models import Test, Question, Answer
+
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
 from tests.forms import ValidTest, ValidQuestion, ValidAnswer
 from tests.models import Test, Question, Answer, Category, User
 from datetime import datetime
 from json import JSONDecodeError, loads
+
+
+def test_detail(request, test_id):
+    test = Test.objects.get(pk=test_id)
+    return render(request, 'test_detail.html', {'test': test})
+
+
+def test_questions(request, test_id):
+    test = Test.objects.get(id=test_id)
+    questions = Question.objects.filter(test=test)
+    answers = Answer.objects.filter(question__in=questions)
+
+    context = {
+        'test': test,
+        'questions': questions,
+        'answers': answers
+    }
+
+    return render(request, 'test_questions.html', context)
+  
 
 def create_test(test):
 
@@ -16,13 +38,10 @@ def create_test(test):
     test.instance.updated_at = test.instance.created_at
     
     test.save()
-
-    
     
 def create_question(question, test):
 
     question.instance.test = test
-    
     question.save()
 
 
@@ -97,5 +116,4 @@ def constructor(request):
         return constructor_get(request)
     
     # return render(request, 'get_tocken.html') получение токена для postman
-    
     
