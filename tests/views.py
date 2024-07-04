@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServer
 from tests.forms import ValidTest, ValidQuestion, ValidAnswer
 from tests.models import Test, Question, Answer, Category, User
 from datetime import datetime
-import json
+from json import JSONDecodeError, loads
 
 def create_test(test_form):
     test = Test()
@@ -46,54 +46,68 @@ def create_answer(answer_form, question):
     
     return answer
     
+
+def constructor_post(request):
+    try:
+
+        params_json = loads(request.body)
+            
+        test_form = ValidTest(params_json)
+        
+        if test_form.is_valid():
+            
+            test = create_test(test_form)
+            
+            for question_json in test_form.cleaned_data['questions'].values():
+                
+                question_form = ValidQuestion(question_json)
+                
+                if question_form.is_valid():
+                    
+                    question = create_question(question_form, test)
+                    
+                    for answer_json in question_form.cleaned_data['answers'].values():
+                        answer_form = ValidAnswer(answer_json)
+                        if answer_form.is_valid():
+                            
+                            answer = create_answer(answer_form, question)    
+
+                        else:
+                            transaction.set_rollback(True)
+                            return HttpResponseBadRequest('invalid answer:' + str(answer_json))
+                        
+                else:
+                    transaction.set_rollback(True)
+                    return HttpResponseBadRequest('invalid question:' + str(question_json))
+            
+        else:
+            transaction.set_rollback(True)
+            return HttpResponseBadRequest('invalid data:' + str(params_json))
+        
+        transaction.set_rollback(True) # отключил транзакцию для тестов
+        return HttpResponse("Test add sucsessfull")
+    
+    except JSONDecodeError:
+        transaction.set_rollback(True)
+        return HttpResponseBadRequest('invalid stream params to JSON: ' + str(request.POST))
+    
+    except Exception as E:
+        transaction.set_rollback(True)
+        return HttpResponseServerError(E)            
+    
+    
+
+def constructor_get(resuest):
+    form = ValidAnswer()
+    return render(resuest, 'constructor.html', context={'form': form})
+    
+    
 # Create your views here.
 @transaction.atomic
 def constructor(request):
     if request.method == 'POST':
-        try:
-
-            try:
-                params_json = json.loads(request.body)
-            except:
-                return HttpResponseBadRequest('invalid stream params to JSON: ' + str(request.POST))
-            
-            test_form = ValidTest(params_json)
-            
-            if test_form.is_valid():
-                
-                test = create_test(test_form)
-                
-                for question_json in test_form.cleaned_data['questions'].values():
-                    
-                    question_form = ValidQuestion(question_json)
-                    
-                    if question_form.is_valid():
-                        
-                        question = create_question(question_form, test)
-                        
-                        for answer_json in question_form.cleaned_data['answers'].values():
-                            answer_form = ValidAnswer(answer_json)
-                            if answer_form.is_valid():
-                                
-                                answer = create_answer(answer_form, question)    
-
-                            else:
-                                transaction.set_rollback(True)
-                                return HttpResponseBadRequest('invalid answer:' + str(answer_json))
-                            
-                    else:
-                        transaction.set_rollback(True)
-                        return HttpResponseBadRequest('invalid question:' + str(question_json))
-                
-            else:
-                transaction.set_rollback(True)
-                return HttpResponseBadRequest('invalid data:' + str(params_json))
-            
-            # transaction.set_rollback(True) # отключил транзакцию для тестов
-            return HttpResponse("Test add sucsessfull")
-        
-        except Exception as E:
-            transaction.set_rollback(True)
-            return HttpResponseServerError(E)         
+        return constructor_post(request)
+    elif request.method == 'GET':
+        return constructor_get(request)
     
     # return render(request, 'get_tocken.html') получение токена для postman

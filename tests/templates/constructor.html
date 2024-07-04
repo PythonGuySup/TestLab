@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block page1 %}  {% endblock page1 %}
+{% block page2 %}  {% endblock page2 %}
+
+{% block content %}
+    
+<form method="POST">
+    
+    <table>
+        <tr>
+            <th><label for="id_category">Категория:</label></th>
+            <td>
+                <input type="text" name="category" maxlength="50" required id="id_category">
+            </td>
+        </tr>
+
+        <tr>
+            <th><label for="id_time">Время на тест:</label></th>
+            <td>
+                <input type="text" name="time" required id="id_time">
+            </td>
+        </tr>
+
+        <tr>
+            <th><label for="id_title">Название теста:</label></th>
+            <td>
+                <input type="text" name="title" maxlength="60" required id="id_title">
+            </td>
+        </tr>
+
+        <tr>
+            <th><label for="id_description">Описание:</label></th>
+            <td>
+                <input type="text" name="description" maxlength="255" required id="id_description">
+            </td>
+        </tr>
+
+        <tr>
+            <th><label for="id_author">Автор:</label></th>
+            <td>
+                <input type="text" name="author" required id="id_author">
+            </td>
+        </tr>
+
+        <div id="questions">
+            <tr>
+                <th><label for="id_question_n">Вопрос_n:</label></th>
+                <td>
+                    <input type="text" name="id_question_n" maxlength="255" required id="id_question_n">
+                </td>
+            </tr>
+
+            <tr>
+                <th><label for="id_multiple_ans_n">Несколько вариантов:</label></th>
+                <td>
+                    <input type="checkbox" name="multiple_ans_n" required id="id_multiple_ans_n">
+                </td>
+            </tr>        
+
+            <div id="answers"
+                <tr>
+                    <th><label for="id_answer_n_a">Ответ_a:</label></th>
+                    <td>
+                        <input type="text" name="answer_n_a" maxlength="255" required id="id_answer_n_a">
+                    </td>
+                </tr>
+
+                <tr>
+                    <th><label for="id_right_answer_n_a">Правильный ответ:</label></th>
+                    <td>
+                        <input type="checkbox" name="right_answer_n_a" required id="id_right_answer_n_a">
+                    </td>
+                </tr>
+            </div>
+        </div>
+
+    </table>
+    <input type="submit" value="Send" >
+
+    
+</form>
+{% endblock content %}
+
