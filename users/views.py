@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib import messages
 from .forms import RegistrationForm
-from main.views import home
+from main.views import home_redirect
 
 def register(request):
     if request.method == 'POST':
@@ -13,7 +13,7 @@ def register(request):
             user.save()
             login(request, user)
             messages.success(request, "Регистрация успешно завершена.")
-            return redirect(home)
+            return redirect(home_redirect)
     else:
         form = RegistrationForm()
     return render(request, 'registration.html', {'form': form})
