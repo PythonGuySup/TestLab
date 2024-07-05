@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render
 from .models import Test, Question, Answer
 
@@ -8,7 +9,6 @@ from tests.models import Test, Question, Answer, Category, User
 from datetime import datetime
 from json import JSONDecodeError, loads
 
-
 def test_detail(request, test_id):
     test = Test.objects.get(pk=test_id)
     return render(request, 'test_detail.html', {'test': test})
@@ -16,20 +16,20 @@ def test_detail(request, test_id):
 
 def test_questions(request, test_id):
     test = Test.objects.get(id=test_id)
-    questions = Question.objects.filter(test=test)
-    answers = Answer.objects.filter(question__in=questions)
+    questions_list = Question.objects.filter(test=test)
+    paginator = Paginator(questions_list, 4)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     context = {
         'test': test,
-        'questions': questions,
-        'answers': answers
+        'page_obj': page_obj
     }
 
     return render(request, 'test_questions.html', context)
   
 
 def create_test(test):
-
     test.instance.category = Category.objects.get(name=test.cleaned_data['category'])
     user = test.cleaned_data['author'] # временное решение, потом будем получать из сеанса
     
@@ -117,3 +117,4 @@ def constructor(request):
     
     # return render(request, 'get_tocken.html') получение токена для postman
     
+

@@ -1,17 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% block page1 %}  {% endblock page1 %}
+{% block page2 %}  {% endblock page2 %}
 
-
-<div class="d-flex justify-content-center align-items-center">
+<div class="position-absolute top-50 start-50 translate-middle">
   <div class="container">
     <h1>Регистрация</h1>
+    <br><br><br>
     <form method="POST">
       {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Зарегистрироваться</button>
+      <div class="form-row">
+        {% for field in form %}
+          <div class="form-group col-md-6">  <!-- Используем col-md-6 для разделения на две колонки -->
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-success">Зарегистрироваться</button>
     </form>
   </div>
 </div>
+
 
 {% endblock %}

@@ -13,6 +13,7 @@
                 <h4 class="card-title">{{ test.title }}</h4>
                 <p class="card-text">{{ test.description }}</p>
                 <p class="card-text">Время на выполнения: {{ test.time|time:"H:i" }}</p>
+                <p>Автор теста: {{ test.author }}</p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <a href="{% url 'test_questions' test.id %}" class="btn btn-primary" type="button">Начать тест</a>
                 </div>
