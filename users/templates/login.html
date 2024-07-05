@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% block page1 %}  {% endblock page1 %}
+{% block page2 %}  {% endblock page2 %}
+
+<div class="position-absolute top-50 start-50 translate-middle">
+  <div class="container">
+
+    <h1>Авторизация</h1>
+    <ul></ul>
+    <br><br><br>
+    <form method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-success ">Войти в аккаунт</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
