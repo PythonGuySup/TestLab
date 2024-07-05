@@ -4,8 +4,19 @@
 {% block page2 %}  {% endblock page2 %}
 
 {% block content %}
+
+<div id="response-message" class="response-message">
     
-<form method="POST">
+</div>
+<style>
+    .response-message {
+      background-color: lightgreen;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+</style>
+
+<form id="test-form">
     {% csrf_token %}
     <label for="id_category">Категория:</label>
     <input type="text" name="category" maxlength="50" required id="id_category"></br>
@@ -51,7 +62,7 @@
     </div><style> .padding-inside {padding:20px;}</style></br></br>
 
 
-    <input type="submit" value="Сохранить тест" >
+    <button onclick="respond()">Сохранить тест</button>
 
     
 </form>
@@ -180,6 +191,82 @@
         });
     });
 
+    function respond() {
+        event.preventDefault()
+        const testForm = document.getElementById('test-form');
+        const formData = new FormData(testForm); // Получаем данные из формы
+        const data = {}; // Создаем объект для хранения данных
+
+        // Извлекаем данные из полей формы
+        data.category = formData.get('category');
+        data.time = formData.get('time');
+        data.title = formData.get('title');
+        data.description = formData.get('description');
+        data.author = formData.get('author');
+
+        // Извлекаем данные о вопросах и ответах
+        data.questions = {};
+        const questions = document.querySelectorAll('#questions_block > div');
+        questions.forEach(questionElement => {
+            const questionId = questionElement.id;
+            data.questions[questionId] = {
+                question: questionElement.querySelector('input[name^="id_question_"]').value,
+                multiple_ans: questionElement.querySelector('input[name^="multiple_ans_"]').checked,
+                answers: {}
+            };
+
+            const answers = questionElement.querySelectorAll('#answers_block_' + questionId.split('_')[1] + ' > div');
+            answers.forEach(answerElement => {
+                const answerId = answerElement.id;
+                data.questions[questionId].answers[answerId] = {
+                    answer: answerElement.querySelector('input[name^="answer_"]').value,
+                    right_answer: answerElement.querySelector('input[name^="right_answer_"]').checked
+                };
+            });
+        });
+
+        // Преобразуем данные в JSON
+        const jsonData = JSON.stringify(data);
+        token = formData.get('csrfmiddlewaretoken')
+        // Отправляем POST запрос
+        fetch('/tests/constructor/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'utf-8',
+                'X-CSRFToken': token
+            },
+            body: jsonData
+        })
+        .then(response => {
+            if (response.ok) {
+                // Получаем ответ от сервера
+                response.text().then(data => { // Используем response.text() для получения текста
+                    console.log('Данные успешно отправлены!', data);
+                    // Выводим сообщение об успехе
+                    const responseMessage = document.getElementById('response-message');
+                    responseMessage.textContent = data; // Отображаем текст ответа
+                    responseMessage.style.backgroundColor = 'lightgreen'; // Устанавливаем цвет фона для успеха
+                });
+            } else {
+                response.text().then(data => { // Используем response.text() для получения текста
+                    console.error('Ошибка отправки данных.', data);
+                    // Выводим сообщение об ошибке
+                    const responseMessage = document.getElementById('response-message');
+                    responseMessage.textContent = data; // Отображаем текст ошибки
+                    responseMessage.style.backgroundColor = 'lightcoral'; // Устанавливаем цвет фона для ошибки
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при отправке данных:', error);
+            // Выводим сообщение об ошибке
+            const responseMessage = document.getElementById('response-message');
+            responseMessage.textContent = `Ошибка при отправке данных: ${error.message || 'Неизвестная ошибка'}`;
+            responseMessage.style.backgroundColor = 'lightcoral'; // Устанавливаем цвет фона для ошибки
+        });
+
+
+    }
 </script>
 {% endblock content %}
 
