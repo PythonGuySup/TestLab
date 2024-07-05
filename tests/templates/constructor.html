@@ -6,7 +6,7 @@
 {% block content %}
     
 <form method="POST">
-    
+    {% csrf_token %}
     <label for="id_category">Категория:</label>
     <input type="text" name="category" maxlength="50" required id="id_category"></br>
     
@@ -29,7 +29,7 @@
                 <input type="text" name="id_question_1" maxlength="255" required id="id_question_1"><button class="delete-question" data-question-id="1">Удалить вопрос...</button></br>
             
                 <label for="id_multiple_ans_1">Несколько вариантов:</label>
-                <input type="checkbox" name="multiple_ans_1" required id="id_multiple_ans_1"></br></br>
+                <input type="checkbox" name="multiple_ans_1" id="id_multiple_ans_1"></br></br>
 
                 <div class="padding-inside">
                     <div id="answers_block_1">
@@ -38,11 +38,11 @@
                             <input type="text" name="answer_1_1" maxlength="255" required id="id_answer_1_1"><button class="delete-answer" data-answer-id="1_1">Удалить ответ...</button></br>
                             
                             <label for="id_right_answer_1_1">Правильный ответ:</label>
-                            <input type="checkbox" name="right_answer_1_1" required id="id_right_answer_1_1"></br>
+                            <input type="checkbox" name="right_answer_1_1" id="id_right_answer_1_1"></br>
                             </br>
                         </div>
                     </div>
-                    <button class="add-answer" data-question-id="1">Добавить ответ...</button>
+                    <button class="add-answer_1" data-question-id="1">Добавить ответ...</button>
                 </div>
                 </br>  
             </div>
@@ -69,7 +69,7 @@
                 <input type="text" name="id_question_${questionCounter}" maxlength="255" required id="id_question_${questionCounter}"><button class="delete-question" data-question-id="${questionCounter}">Удалить вопрос...</button></br>
             
                 <label for="id_multiple_ans_${questionCounter}">Несколько вариантов:</label>
-                <input type="checkbox" name="multiple_ans_${questionCounter}" required id="id_multiple_ans_${questionCounter}"></br></br>
+                <input type="checkbox" name="multiple_ans_${questionCounter}" id="id_multiple_ans_${questionCounter}"></br></br>
 
                 <div class="padding-inside">
                     <div id="answers_block_${questionCounter}">
@@ -78,11 +78,11 @@
                             <input type="text" name="answer_${questionCounter}_1" maxlength="255" required id="id_answer_${questionCounter}_1"><button class="delete-answer" data-answer-id="${questionCounter}_1">Удалить ответ...</button></br>
                             
                             <label for="id_right_answer_${questionCounter}_1">Правильный ответ:</label>
-                            <input type="checkbox" name="right_answer_${questionCounter}_1" required id="id_right_answer_${questionCounter}_1"></br>
+                            <input type="checkbox" name="right_answer_${questionCounter}_1" id="id_right_answer_${questionCounter}_1"></br>
                             </br>
                         </div>
                     </div>
-                    <button class="add-answer" data-question-id="${questionCounter}">Добавить ответ...</button>
+                    <button class="add-answer_${questionCounter}" data-question-id="${questionCounter}">Добавить ответ...</button>
                 </div>
                 </br>
             </div>
@@ -100,7 +100,7 @@
             });
         });
 
-        const addAnswerButtons = document.querySelectorAll('.add-answer');
+        const addAnswerButtons = document.querySelectorAll(`.add-answer_${questionCounter}`);
         addAnswerButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const questionId = button.dataset.questionId;
@@ -111,7 +111,7 @@
                         <input type="text" name="answer_${questionId}_${answerCounter}" maxlength="255" required id="id_answer_${questionId}_${answerCounter}"><button class="delete-answer" data-answer-id="${questionId}_${answerCounter}">Удалить ответ...</button></br>
                         
                         <label for="id_right_answer_${questionId}_${answerCounter}">Правильный ответ:</label>
-                        <input type="checkbox" name="right_answer_${questionId}_${answerCounter}" required id="id_right_answer_${questionId}_${answerCounter}"></br>
+                        <input type="checkbox" name="right_answer_${questionId}_${answerCounter}" id="id_right_answer_${questionId}_${answerCounter}"></br>
                         </br>
                     </div>
                 `;
@@ -150,7 +150,7 @@
         });
     });
 
-    const addAnswerButtons = document.querySelectorAll('.add-answer');
+    const addAnswerButtons = document.querySelectorAll(`.add-answer_${questionCounter}`);
     addAnswerButtons.forEach(button => {
         button.addEventListener('click', () => {
             const questionId = button.dataset.questionId;
@@ -161,7 +161,7 @@
                     <input type="text" name="answer_${questionId}_${answerCounter}" maxlength="255" required id="id_answer_${questionId}_${answerCounter}"><button class="delete-answer" data-answer-id="${questionId}_${answerCounter}">Удалить ответ...</button></br>
                     
                     <label for="id_right_answer_${questionId}_${answerCounter}">Правильный ответ:</label>
-                    <input type="checkbox" name="right_answer_${questionId}_${answerCounter}" required id="id_right_answer_${questionId}_${answerCounter}"></br>
+                    <input type="checkbox" name="right_answer_${questionId}_${answerCounter}" id="id_right_answer_${questionId}_${answerCounter}"></br>
                     </br>
                 </div>
             `;
@@ -179,6 +179,7 @@
             });
         });
     });
+
 </script>
 {% endblock content %}
 
