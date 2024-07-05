@@ -72,30 +72,33 @@ def constructor_post(request):
                     
                     question = create_question(question_form, test_form.instance)
                     
+                    one_right = False
                     for answer_json in question_form.cleaned_data['answers'].values():
                         answer_form = ValidAnswer(answer_json)
                         if answer_form.is_valid():
-                            
+                            one_right = one_right or answer_form.cleaned_data['right_answer']
                             create_answer(answer_form, question_form.instance)    
 
                         else:
                             transaction.set_rollback(True)
-                            return HttpResponseBadRequest('invalid answer:' + str(answer_json))
-                        
+                            return HttpResponseBadRequest('invalid answer data:' + str(answer_json))
+                    if not one_right:
+                        transaction.set_rollback(True)
+                        return HttpResponseBadRequest('At least one answer must be correct:' + str(question_form.cleaned_data['answers']))
                 else:
                     transaction.set_rollback(True)
-                    return HttpResponseBadRequest('invalid question:' + str(question_json))
+                    return HttpResponseBadRequest('invalid question data:' + str(question_json))
             
         else:
             transaction.set_rollback(True)
-            return HttpResponseBadRequest('invalid data:' + str(params_json))
+            return HttpResponseBadRequest('invalid test data:' + str(params_json))
         
-        transaction.set_rollback(True) # отключил транзакцию для тестов
+        # transaction.set_rollback(True) # отключил транзакцию для тестов
         return HttpResponse("Test add sucsessfull")
     
     except JSONDecodeError:
         transaction.set_rollback(True)
-        return HttpResponseBadRequest('invalid stream params to JSON: ' + str(request.POST))
+        return HttpResponseBadRequest('invalid stream params to JSON: ' + str(request.body))
     
     except Exception as E:
         transaction.set_rollback(True)
