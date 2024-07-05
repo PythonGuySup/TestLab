@@ -123,4 +123,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Global constants for pages
 
-TEST_QUANTITY_AT_PAGE = 1
+TEST_QUANTITY_AT_PAGE = 4
