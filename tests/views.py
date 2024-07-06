@@ -3,7 +3,6 @@ from django.shortcuts import render
 
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
-from django.core.exceptions import ObjectDoesNotExist
 from tests.forms import ValidTest, ValidQuestion, ValidAnswer
 from tests.models import Test, Question, Category, User, Answer
 from datetime import datetime
@@ -36,8 +35,9 @@ def create_test(test, test_id):
     user = test.cleaned_data['author']  # временное решение, потом будем получать из сеанса
 
     test.instance.author = User.objects.get(username=user)
-    test.instance.created_at = datetime.now()
-    test.instance.updated_at = test.instance.created_at
+    if test_id is None:
+        test.instance.created_at = datetime.now()
+    test.instance.updated_at = datetime.now()
 
     test.save()
 
