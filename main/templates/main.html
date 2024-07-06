@@ -34,10 +34,12 @@
         
         
             {% for test in tests %}
+                <a href="{% url 'test_detail' test.2 %}" style="display: block;">
                 <div class="test">
-                    <h3>{{ test.0 }} </h3>
+                    <h3> {{ test.0 }} </h3>
                     <p> {{ test.1 }} </p>
                 </div>
+                </a>
             {% endfor %}
 
 
