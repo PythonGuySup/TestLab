@@ -10,7 +10,6 @@ def home_page(request, page):
     else:
         search_query = None
 
-
     tests, how_many_pages = get_tests_slices(page, search_query)
 
     tests_to_response = [(test.title, test.description, test.id) for test in tests]
