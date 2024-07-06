@@ -3,7 +3,7 @@
 {% block page1 %} Конструктор {% endblock page1 %}
 {% block page2 %} Авторизация {% endblock page2 %}
 {% block page1url %} {% url 'constructor' %}{% endblock page1url %}
-{% block page2url %} {% url 'register' %}{% endblock page2url %}
+{% block page2url %} {% url 'login' %}{% endblock page2url %}
 
 {% block content %}
     <main>
@@ -34,12 +34,14 @@
         
         
             {% for test in tests %}
-                <div class="test">
-                    <h3>{{ test.0 }} </h3>
-                    <p> {{ test.1 }} </p>
+                <div onclick="window.location.href='{% url 'test_detail' test.2 %}';" style="display: block; cursor: pointer;">
+                    <div class="test">
+                        <h3>{{ test.0 }}</h3>
+                        <p>{{ test.1 }}</p>
+                    </div>
                 </div>
+<
             {% endfor %}
-
 
             <div class="pagination">
                 <div class="arrow-6">
