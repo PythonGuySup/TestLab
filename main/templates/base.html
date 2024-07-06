@@ -16,8 +16,8 @@
         <div class="logo">Ик.</div>
         <div class="title">{% block logo_title %} TestLab {% endblock logo_title %}</div>
         <nav>
-            <a href="#">{% block page1 %} Default page 1 {% endblock page1 %}</a>
-            <a href="#">{% block page2 %} Default page 2 {% endblock page2 %}</a>
+            <a href={% block page1url %} "#" {% endblock page1url %}>{% block page1 %} Default page 1 {% endblock page1 %}</a>
+            <a href={% block page2url %} "#" {% endblock page2url %}>{% block page2 %} Default page 2 {% endblock page2 %}</a>
         </nav>
         <div class="account">{% block account %} Акк {% endblock %}</div>
     </header>

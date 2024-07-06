@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block page1 %}  {% endblock page1 %}
+{% block page2 %}  {% endblock page2 %}
+
+{% block content %}
+
+<div id="response-message" class="response-message">
+    
+</div>
+<style>
+    .response-message {
+      background-color: lightgreen;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+</style>
+
+<form id="test-form">
+    {% csrf_token %}
+    <label for="id_category">Категория:</label>
+    <input type="text" name="category" maxlength="50" required id="id_category"></br>
+    
+    <label for="id_time">Время на тест:</label>
+    <input type="text" name="time" required id="id_time"></br>
+    
+    <label for="id_title">Название теста:</label>
+    <input type="text" name="title" maxlength="60" required id="id_title"></br>
+    
+    <label for="id_description">Описание:</label>
+    <input type="text" name="description" maxlength="255" required id="id_description"></br>
+    
+    <label for="id_author">Автор:</label>
+    <input type="text" name="author" required id="id_author"></br></br>
+            
+    <div class="padding-inside">
+        <div id="questions_block" >
+            <div id="question_1">
+                <label for="id_question_1">Вопрос:</label>
+                <input type="text" name="id_question_1" maxlength="255" required id="id_question_1"><button class="delete-question" data-question-id="1">Удалить вопрос...</button></br>
+            
+                <label for="id_multiple_ans_1">Несколько вариантов:</label>
+                <input type="checkbox" name="multiple_ans_1" id="id_multiple_ans_1"></br></br>
+
+                <div class="padding-inside">
+                    <div id="answers_block_1">
+                        <div id="answer_1_1">
+                            <label for="id_answer_1_1">Ответ:</label>
+                            <input type="text" name="answer_1_1" maxlength="255" required id="id_answer_1_1"><button class="delete-answer" data-answer-id="1_1">Удалить ответ...</button></br>
+                            
+                            <label for="id_right_answer_1_1">Правильный ответ:</label>
+                            <input type="checkbox" name="right_answer_1_1" id="id_right_answer_1_1"></br>
+                            </br>
+                        </div>
+                    </div>
+                    <button class="add-answer_1" data-question-id="1">Добавить ответ...</button>
+                </div>
+                </br>  
+            </div>
+        </div>
+        <button id="button_add_question" class="add-question">Добавить вопрос...</button>
+    </div><style> .padding-inside {padding:20px;}</style></br></br>
+
+
+    <button onclick="respond()">Сохранить тест</button>
+
+    
+</form>
+
+<script>
+    let questionCounter = 1;
+    let answerCounter = 1;
+
+    const addQuestionButton = document.querySelector('.add-question');
+    addQuestionButton.addEventListener('click', () => {
+        questionCounter++;
+        const newQuestionBlock = `
+            <div id="question_${questionCounter}">
+                <label for="id_question_${questionCounter}">Вопрос:</label>
+                <input type="text" name="id_question_${questionCounter}" maxlength="255" required id="id_question_${questionCounter}"><button class="delete-question" data-question-id="${questionCounter}">Удалить вопрос...</button></br>
+            
+                <label for="id_multiple_ans_${questionCounter}">Несколько вариантов:</label>
+                <input type="checkbox" name="multiple_ans_${questionCounter}" id="id_multiple_ans_${questionCounter}"></br></br>
+
+                <div class="padding-inside">
+                    <div id="answers_block_${questionCounter}">
+                        <div id="answer_${questionCounter}_1">
+                            <label for="id_answer_${questionCounter}_1">Ответ:</label>
+                            <input type="text" name="answer_${questionCounter}_1" maxlength="255" required id="id_answer_${questionCounter}_1"><button class="delete-answer" data-answer-id="${questionCounter}_1">Удалить ответ...</button></br>
+                            
+                            <label for="id_right_answer_${questionCounter}_1">Правильный ответ:</label>
+                            <input type="checkbox" name="right_answer_${questionCounter}_1" id="id_right_answer_${questionCounter}_1"></br>
+                            </br>
+                        </div>
+                    </div>
+                    <button class="add-answer_${questionCounter}" data-question-id="${questionCounter}">Добавить ответ...</button>
+                </div>
+                </br>
+            </div>
+        `;
+        const questionsBlock = document.getElementById('questions_block');
+        questionsBlock.insertAdjacentHTML('beforeend', newQuestionBlock);
+
+        // Добавляем обработчики событий для новых кнопок
+        const deleteQuestionButtons = document.querySelectorAll('.delete-question');
+        deleteQuestionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const questionId = button.dataset.questionId;
+                const questionBlock = document.getElementById(`question_${questionId}`);
+                questionBlock.remove();
+            });
+        });
+
+        const addAnswerButtons = document.querySelectorAll(`.add-answer_${questionCounter}`);
+        addAnswerButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const questionId = button.dataset.questionId;
+                answerCounter++;
+                const newAnswerBlock = `
+                    <div id="answer_${questionId}_${answerCounter}">
+                        <label for="id_answer_${questionId}_${answerCounter}">Ответ:</label>
+                        <input type="text" name="answer_${questionId}_${answerCounter}" maxlength="255" required id="id_answer_${questionId}_${answerCounter}"><button class="delete-answer" data-answer-id="${questionId}_${answerCounter}">Удалить ответ...</button></br>
+                        
+                        <label for="id_right_answer_${questionId}_${answerCounter}">Правильный ответ:</label>
+                        <input type="checkbox" name="right_answer_${questionId}_${answerCounter}" id="id_right_answer_${questionId}_${answerCounter}"></br>
+                        </br>
+                    </div>
+                `;
+                const answersBlock = document.getElementById(`answers_block_${questionId}`);
+                answersBlock.insertAdjacentHTML('beforeend', newAnswerBlock);
+
+                // Добавляем обработчик событий для новой кнопки удаления ответа
+                const deleteAnswerButtons = document.querySelectorAll('.delete-answer');
+                deleteAnswerButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const answerId = button.dataset.answerId;
+                        const answerBlock = document.getElementById(`answer_${answerId}`);
+                        answerBlock.remove();
+                    });
+                });
+            });
+        });
+    });
+
+    // Обработчики событий для кнопок удаления вопросов и ответов
+    const deleteQuestionButtons = document.querySelectorAll('.delete-question');
+    deleteQuestionButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const questionId = button.dataset.questionId;
+            const questionBlock = document.getElementById(`question_${questionId}`);
+            questionBlock.remove();
+        });
+    });
+
+    const deleteAnswerButtons = document.querySelectorAll('.delete-answer');
+    deleteAnswerButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const answerId = button.dataset.answerId;
+            const answerBlock = document.getElementById(`answer_${answerId}`);
+            answerBlock.remove();
+        });
+    });
+
+    const addAnswerButtons = document.querySelectorAll(`.add-answer_${questionCounter}`);
+    addAnswerButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const questionId = button.dataset.questionId;
+            answerCounter++;
+            const newAnswerBlock = `
+                <div id="answer_${questionId}_${answerCounter}">
+                    <label for="id_answer_${questionId}_${answerCounter}">Ответ:</label>
+                    <input type="text" name="answer_${questionId}_${answerCounter}" maxlength="255" required id="id_answer_${questionId}_${answerCounter}"><button class="delete-answer" data-answer-id="${questionId}_${answerCounter}">Удалить ответ...</button></br>
+                    
+                    <label for="id_right_answer_${questionId}_${answerCounter}">Правильный ответ:</label>
+                    <input type="checkbox" name="right_answer_${questionId}_${answerCounter}" id="id_right_answer_${questionId}_${answerCounter}"></br>
+                    </br>
+                </div>
+            `;
+            const answersBlock = document.getElementById(`answers_block_${questionId}`);
+            answersBlock.insertAdjacentHTML('beforeend', newAnswerBlock);
+
+            // Добавляем обработчик событий для новой кнопки удаления ответа
+            const deleteAnswerButtons = document.querySelectorAll('.delete-answer');
+            deleteAnswerButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const answerId = button.dataset.answerId;
+                    const answerBlock = document.getElementById(`answer_${answerId}`);
+                    answerBlock.remove();
+                });
+            });
+        });
+    });
+
+    function respond() {
+        event.preventDefault()
+        const testForm = document.getElementById('test-form');
+        const formData = new FormData(testForm); // Получаем данные из формы
+        const data = {}; // Создаем объект для хранения данных
+
+        // Извлекаем данные из полей формы
+        data.category = formData.get('category');
+        data.time = formData.get('time');
+        data.title = formData.get('title');
+        data.description = formData.get('description');
+        data.author = formData.get('author');
+
+        // Извлекаем данные о вопросах и ответах
+        data.questions = {};
+        const questions = document.querySelectorAll('#questions_block > div');
+        questions.forEach(questionElement => {
+            const questionId = questionElement.id;
+            data.questions[questionId] = {
+                question: questionElement.querySelector('input[name^="id_question_"]').value,
+                multiple_ans: questionElement.querySelector('input[name^="multiple_ans_"]').checked,
+                answers: {}
+            };
+
+            const answers = questionElement.querySelectorAll('#answers_block_' + questionId.split('_')[1] + ' > div');
+            answers.forEach(answerElement => {
+                const answerId = answerElement.id;
+                data.questions[questionId].answers[answerId] = {
+                    answer: answerElement.querySelector('input[name^="answer_"]').value,
+                    right_answer: answerElement.querySelector('input[name^="right_answer_"]').checked
+                };
+            });
+        });
+
+        // Преобразуем данные в JSON
+        const jsonData = JSON.stringify(data);
+        token = formData.get('csrfmiddlewaretoken')
+        // Отправляем POST запрос
+        fetch('/tests/constructor/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'utf-8',
+                'X-CSRFToken': token
+            },
+            body: jsonData
+        })
+        .then(response => {
+            if (response.ok) {
+                // Получаем ответ от сервера
+                response.text().then(data => { // Используем response.text() для получения текста
+                    console.log('Данные успешно отправлены!', data);
+                    // Выводим сообщение об успехе
+                    const responseMessage = document.getElementById('response-message');
+                    responseMessage.textContent = data; // Отображаем текст ответа
+                    responseMessage.style.backgroundColor = 'lightgreen'; // Устанавливаем цвет фона для успеха
+                });
+            } else {
+                response.text().then(data => { // Используем response.text() для получения текста
+                    console.error('Ошибка отправки данных.', data);
+                    // Выводим сообщение об ошибке
+                    const responseMessage = document.getElementById('response-message');
+                    responseMessage.textContent = data; // Отображаем текст ошибки
+                    responseMessage.style.backgroundColor = 'lightcoral'; // Устанавливаем цвет фона для ошибки
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при отправке данных:', error);
+            // Выводим сообщение об ошибке
+            const responseMessage = document.getElementById('response-message');
+            responseMessage.textContent = `Ошибка при отправке данных: ${error.message || 'Неизвестная ошибка'}`;
+            responseMessage.style.backgroundColor = 'lightcoral'; // Устанавливаем цвет фона для ошибки
+        });
+
+
+    }
+</script>
+{% endblock content %}
+

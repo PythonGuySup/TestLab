@@ -2,6 +2,8 @@
 
 {% block page1 %} Конструктор {% endblock page1 %}
 {% block page2 %} Авторизация {% endblock page2 %}
+{% block page1url %} {% url 'constructor' %}{% endblock page1url %}
+{% block page2url %} {% url 'login' %}{% endblock page2url %}
 
 {% block content %}
     <main>
@@ -26,7 +28,11 @@
             </footer>
         </aside>
         <section class="content">
-            <input type="text" placeholder="Поиск" class="search">
+            <form method="POST" class="post-form">{% csrf_token %}
+                <input type="text" name="search_query" placeholder="Поиск" class="search">
+            </form>
+        
+        
             {% for test in tests %}
                 <div class="test">
                     <h3>{{ test.0 }} </h3>
@@ -39,7 +45,7 @@
                 <div class="arrow-6">
 
 
-                    <a href="{% url 'home_page' pg=1 %}" class="#"> <svg width="18px" height="17px" viewBox="0 0 18 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <a href="{% url 'home_page' 1  %}" class="#"> <svg width="18px" height="17px" viewBox="0 0 18 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                         <g transform="translate(8.500000, 8.500000) scale(-1, 1) translate(-8.500000, -8.500000)">
                             <polygon class="arrow-6-pl" points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596"></polygon>
                             <polygon class="arrow-6-pl-fixed" points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596"></polygon>
@@ -48,10 +54,10 @@
                     </svg></a>
 
                      {% for page in pages %}
-                    <a href="{% url 'home_page' pg=page %}" class="btn" >{{ page }}</a>
+                    <a href="{% url 'home_page' page  %}" class="btn" >{{ page }}</a>
 
                      {% endfor %}
-                    <a href="{% url 'home_page' pg=last_page %}" class="#"><svg width="18px" height="17px" viewBox="-1 0 18 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <a href="{% url 'home_page' last_page %}" class="#"><svg width="18px" height="17px" viewBox="-1 0 18 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                         <g>
                             <polygon class="arrow-6-pl" points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596"></polygon>
                             <polygon class="arrow-6-pl-fixed" points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596"></polygon>
