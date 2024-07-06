@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
 from tests.forms import ValidTest, ValidQuestion, ValidAnswer
-from tests.models import Test, Question, Category, User
+from tests.models import Test, Question, Category, User, Answer
 from datetime import datetime
 from json import JSONDecodeError, loads
 
@@ -30,7 +30,7 @@ def test_questions(request, test_id):
 
 
 def create_test(test):
-    test.instance.category = Category.objects.get(name=test.cleaned_data['category'])
+    test.instance.category, created = Category.objects.get_or_create(name=test.cleaned_data['category'])
     user = test.cleaned_data['author']  # временное решение, потом будем получать из сеанса
 
     test.instance.author = User.objects.get(username=user)
@@ -102,16 +102,35 @@ def constructor_post(request):
         return HttpResponseServerError(E)
 
 
-def constructor_get(resuest):
-    return render(resuest, 'constructor.html')
+def constructor_get(resuest, test_id):
+    if test_id is None:
+        return render(resuest, 'constructor.html')
+    else:
+        data = {}
+        test = Test.objects.get(id=test_id)
+        questions = Question.objects.filter(test=test)
+        
+        data['category'] = test.category.name
+        data['time'] = test.time
+        data['title'] = test.title
+        data['description'] = test.description
+        data['author'] = test.author.username
+        data['questions'] = {}
+        for i, question in enumerate(questions):
+            data['questions'][f'question_{i+1}'] = {'question': question.question, 'multiple_ans': question.multiple_ans, 'answers': {}}
+            answers = Answer.objects.filter(id=question.id)
+            for j, answer in enumerate(answers):
+                data['questions'][f'question_{i+1}']['answers'][f'answer_{i}_{j}'] = {'answer': answer.answer, 'right_answer': answer.right_answer}
+        
+        return render(resuest, 'reconstructor.html')
 
 
 # Create your views here.
 
-def constructor(request):
+def constructor(request, test_id = None):
     if request.method == 'POST':
         return constructor_post(request)
     elif request.method == 'GET':
-        return constructor_get(request)
+        return constructor_get(request, test_id)
 
     # return render(request, 'get_tocken.html') получение токена для postman
