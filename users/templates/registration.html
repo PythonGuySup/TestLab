@@ -7,24 +7,33 @@
 <div class="position-absolute top-50 start-50 translate-middle">
   <div class="container">
     <h1>Регистрация</h1>
-    <br><br><br>
+
+
+
+    <br>
     <form method="POST">
       {% csrf_token %}
       <div class="form-row">
         {% for field in form %}
-          <div class="form-group col-md-6">  <!-- Используем col-md-6 для разделения на две колонки -->
+          <div class="form-group col-md-6">
+            <br>
             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
             {{ field }}
-            {% for error in field.errors %}
-              <div class="text-danger">{{ error }}</div>
-            {% endfor %}
           </div>
+          {% for error in field.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
         {% endfor %}
+
       </div>
-      <button type="submit" class="btn btn-success">Зарегистрироваться</button>
+      <br>
+      <!-- ссылки нужно будет поменять -->
+        <button type="submit" class="btn btn-success">Зарегистрироваться</button>
+        <a href="http://127.0.0.1:8000/users/login/"> <button type="button" class="btn btn-primary">Авторизация</button></a>
     </form>
   </div>
 </div>
+
 
 
 {% endblock %}

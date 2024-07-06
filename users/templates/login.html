@@ -1,20 +1,46 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 {% block page1 %}  {% endblock page1 %}
 {% block page2 %}  {% endblock page2 %}
 
 <div class="position-absolute top-50 start-50 translate-middle">
   <div class="container">
-
     <h1>Авторизация</h1>
-    <ul></ul>
-    <br><br><br>
+<!--    {% if messages %}-->
+<!--    <ul class="messages">-->
+<!--      {% for message in messages %}-->
+<!--        <li>{{ message }}</li>-->
+<!--      {% endfor %}-->
+<!--    </ul>-->
+<!--  {% endif %}-->
+    <br><br>
     <form method="POST">
       {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn btn-success ">Войти в аккаунт</button>
+      <div class="form-row">
+        {% for field in form %}
+
+          <div class="form-group col-md-12">  <!-- Используем col-md-12 для заполнения всей ширины строки -->
+            <br>
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <br>
+            {{ field }}
+            {% for error in field.errors %}
+            <br>
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      <br>
+
+      <div class="text-center">
+<!-- ссылки нужно будет поменять -->
+        <button type="submit" class="btn btn-success">Войти в аккаунт</button>
+        <a href="http://127.0.0.1:8000/users/register/">
+          <button type="button" class="btn btn-primary">Регистрация</button>
+        </a>
+      </div>
     </form>
   </div>
 </div>
