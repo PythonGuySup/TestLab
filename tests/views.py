@@ -111,18 +111,18 @@ def constructor_get(resuest, test_id):
         questions = Question.objects.filter(test=test)
         
         data['category'] = test.category.name
-        data['time'] = test.time
+        data['time'] = str(test.time)
         data['title'] = test.title
         data['description'] = test.description
         data['author'] = test.author.username
         data['questions'] = {}
         for i, question in enumerate(questions):
-            data['questions'][f'question_{i+1}'] = {'question': question.question, 'multiple_ans': question.multiple_ans, 'answers': {}}
+            data['questions'][f'{i+1}'] = {'question': question.question, 'multiple_ans': question.multiple_ans, 'answers': {}}
             answers = Answer.objects.filter(id=question.id)
             for j, answer in enumerate(answers):
-                data['questions'][f'question_{i+1}']['answers'][f'answer_{i}_{j}'] = {'answer': answer.answer, 'right_answer': answer.right_answer}
+                data['questions'][f'{i+1}']['answers'][f'{i}_{j}'] = {'answer': answer.answer, 'right_answer': answer.right_answer}
         
-        return render(resuest, 'reconstructor.html')
+        return render(resuest, 'constructor.html', context={'data': data})
 
 
 # Create your views here.

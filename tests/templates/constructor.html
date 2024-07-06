@@ -18,45 +18,85 @@
 
 <form id="test-form">
     {% csrf_token %}
+
+
+
     <label for="id_category">Категория:</label>
-    <input type="text" name="category" maxlength="50" required id="id_category"></br>
+    <input type="text" name="category" maxlength="50" value="{{ data.category|default:'' }}" required id="id_category"></br>
     
     <label for="id_time">Время на тест:</label>
-    <input type="text" name="time" required id="id_time"></br>
+    <input type="text" name="time" required id="id_time" value="{{ data.time|default:'' }}"></br>
     
     <label for="id_title">Название теста:</label>
-    <input type="text" name="title" maxlength="60" required id="id_title"></br>
+    <input type="text" name="title" maxlength="60" required id="id_title" value="{{ data.title|default:'' }}"></br>
     
     <label for="id_description">Описание:</label>
-    <input type="text" name="description" maxlength="255" required id="id_description"></br>
+    <input type="text" name="description" maxlength="255" required id="id_description" value="{{ data.description|default:'' }}"></br>
     
     <label for="id_author">Автор:</label>
     <input type="text" name="author" required id="id_author"></br></br>
             
     <div class="padding-inside">
         <div id="questions_block" >
-            <div id="question_1">
-                <label for="id_question_1">Вопрос:</label>
-                <input type="text" name="id_question_1" maxlength="255" required id="id_question_1"><button class="delete-question btn btn-danger" data-question-id="1" onclick="del_question('1')">Удалить вопрос...</button></br>
-            
-                <label for="id_multiple_ans_1">Несколько вариантов:</label>
-                <input type="checkbox" name="multiple_ans_1" id="id_multiple_ans_1"></br></br>
 
-                <div class="padding-inside">
-                    <div id="answers_block_1">
-                        <div id="answer_1_1">
-                            <label for="id_answer_1_1">Ответ:</label>
-                            <input type="text" name="answer_1_1" maxlength="255" required id="id_answer_1_1"><button class="delete-answer btn btn-danger" data-answer-id="1_1" onclick="del_answer('1_1')">Удалить ответ...</button></br>
-                            
-                            <label for="id_right_answer_1_1">Правильный ответ:</label>
-                            <input type="checkbox" name="right_answer_1_1" id="id_right_answer_1_1"></br>
-                            </br>
+            {% for question_id, question in data.questions.items %}
+
+                <div id="question_{{question_id}}">
+                    <label for="id_question_{{question_id}}">Вопрос:</label>
+                    <input type="text" name="id_question_{{question_id}}" maxlength="255" required id="id_question_{{question_id}}" value="{{ question.question }}"><button class="delete-question btn btn-danger" data-question-id="{{question_id}}" onclick="del_question('{{question_id}}')">Удалить вопрос...</button></br>
+                
+                    <label for="id_multiple_ans_{{question_id}}">Несколько вариантов:</label>
+                    <input type="checkbox" name="multiple_ans_{{question_id}}" id="id_multiple_ans_{{question_id}}" value="{{ question.multiple_ans }}"></br></br>
+
+                    <div class="padding-inside">
+                        <div id="answers_block_{{question_id}}">
+
+                            {%for answer_id, answer in question.answers.items %}
+
+                                <div id="answer_{{answer_id}}">
+                                    <label for="id_answer_{{answer_id}}">Ответ:</label>
+                                    <input type="text" name="answer_{{answer_id}}" maxlength="255" required id="id_answer_{{answer_id}}" value="{{ answer.answer }}"><button class="delete-answer btn btn-danger" data-answer-id="{{answer_id}}" onclick="del_answer('{{answer_id}}')">Удалить ответ...</button></br>
+                                    
+                                    <label for="id_right_answer_{{answer_id}}">Правильный ответ:</label>
+                                    <input type="checkbox" name="right_answer_{{answer_id}}" id="id_right_answer_{{answer_id}} value="{{ answer.right_answer }}""></br>
+                                    </br>
+                                </div>
+
+                            {%endfor%}
+
+
                         </div>
+                        <button class="add-answer_{{question_id}} btn btn-primary" data-question-id="{{question_id}}" onclick="add_answer('{{question_id}}')">Добавить ответ...</button>
                     </div>
-                    <button class="add-answer_1 btn btn-primary" data-question-id="1" onclick="add_answer('1')">Добавить ответ...</button>
+                    </br>  
                 </div>
-                </br>  
-            </div>
+
+            {% empty %}
+
+                <div id="question_1">
+                    <label for="id_question_1">Вопрос:</label>
+                    <input type="text" name="id_question_1" maxlength="255" required id="id_question_1"><button class="delete-question btn btn-danger" data-question-id="1" onclick="del_question('1')">Удалить вопрос...</button></br>
+                
+                    <label for="id_multiple_ans_1">Несколько вариантов:</label>
+                    <input type="checkbox" name="multiple_ans_1" id="id_multiple_ans_1"></br></br>
+
+                    <div class="padding-inside">
+                        <div id="answers_block_1">
+                            <div id="answer_1_1">
+                                <label for="id_answer_1_1">Ответ:</label>
+                                <input type="text" name="answer_1_1" maxlength="255" required id="id_answer_1_1"><button class="delete-answer btn btn-danger" data-answer-id="1_1" onclick="del_answer('1_1')">Удалить ответ...</button></br>
+                                
+                                <label for="id_right_answer_1_1">Правильный ответ:</label>
+                                <input type="checkbox" name="right_answer_1_1" id="id_right_answer_1_1"></br>
+                                </br>
+                            </div>
+                        </div>
+                        <button class="add-answer_1 btn btn-primary" data-question-id="1" onclick="add_answer('1')">Добавить ответ...</button>
+                    </div>
+                    </br>  
+                </div>
+
+            {% endfor %}
         </div>
         <button id="button_add_question" class="add-question btn btn-primary" onclick="add_question()">Добавить вопрос...</button>
     </div><style> .padding-inside {padding:20px;}</style></br></br>
