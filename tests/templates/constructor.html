@@ -10,7 +10,6 @@
 </div>
 <style>
     .response-message {
-      background-color: lightgreen;
       padding: 10px;
       margin-bottom: 10px;
     }
@@ -232,6 +231,7 @@
                     responseMessage.textContent = data; // Отображаем текст ответа
                     responseMessage.style.backgroundColor = 'lightgreen'; // Устанавливаем цвет фона для успеха
                 });
+                window.location=`/tests/constructor_result/${test_id}`;
             } else {
                 response.text().then(data => { // Используем response.text() для получения текста
                     console.error('Ошибка отправки данных.', data);
@@ -249,7 +249,7 @@
             responseMessage.textContent = `Ошибка при отправке данных: ${error.message || 'Неизвестная ошибка'}`;
             responseMessage.style.backgroundColor = 'lightcoral'; // Устанавливаем цвет фона для ошибки
         });
-
+        window.scrollTo(0, 0);
     }
 </script>
 {% endblock content %}

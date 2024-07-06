@@ -143,3 +143,7 @@ def constructor(request, test_id = None):
         return constructor_get(request, test_id)
 
     # return render(request, 'get_tocken.html') получение токена для postman
+    
+def contructor_result(request, test_id = None):
+    return render(request, 'constructor_result.html', context={'test_id':test_id})
+    
