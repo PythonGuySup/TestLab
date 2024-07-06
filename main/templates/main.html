@@ -34,14 +34,13 @@
         
         
             {% for test in tests %}
-                <a href="{% url 'test_detail' test.2 %}" style="display: block;">
-                <div class="test">
-                    <h3> {{ test.0 }} </h3>
-                    <p> {{ test.1 }} </p>
+                <div onclick="window.location.href='{% url 'test_detail' test.2 %}';" style="display: block; cursor: pointer;">
+                    <div class="test">
+                        <h3>{{ test.0 }}</h3>
+                        <p>{{ test.1 }}</p>
+                    </div>
                 </div>
-                </a>
             {% endfor %}
-
 
             <div class="pagination">
                 <div class="arrow-6">
