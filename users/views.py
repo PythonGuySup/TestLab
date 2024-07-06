@@ -17,7 +17,11 @@ def register(request):
             user.save()
             login(request, user)
             messages.success(request, "Регистрация успешно завершена.")
-            return redirect(home_redirect)
+            return redirect('login.html')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = RegistrationForm()
     return render(request, 'registration.html', {'form': form})
@@ -31,9 +35,9 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect(home_redirect)
+            return redirect(home_redirect)  # Перенаправьте на домашнюю страницу
         else:
-            messages.error(request, "Ошибка регистрации. Проверьте введенные данные.")
+            messages.error(request, "Ошибка авторизации. Проверьте введенные данные.")
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
