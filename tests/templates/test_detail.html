@@ -14,6 +14,7 @@
                 <p class="card-text">Время на выполнения: {{ test.time|time:"H:i" }}</p>
                 <p>Автор теста: {{ test.author }}</p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'reconstructor' test.id %}" class="btn btn-success" type="button">Редактировать тест</a>
                     <a href="{% url 'test_questions' test.id %}" class="btn btn-primary" type="button">Начать тест</a>
                 </div>
             </div>

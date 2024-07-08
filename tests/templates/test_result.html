@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block logo_title %} TestLab {% endblock logo_title %}
+{% block page1 %} Главная {% endblock page1 %}
+{% block page2 %} Конструктор {% endblock page2 %}
+{% block account %} Акк {% endblock account %}
+{% block title %}Результат теста{% endblock title %}
+
+{% block content %}
+    <div class="container my-5">
+         <div class="card">
+             <div class="card-body">
+                 <h4 class="card-title">Результат теста</h4>
+                 <p class="card-text">Правильных ответов: </p>
+                 <p class="card-text">Оценка: </p>
+                 <p class="card-text">Время: </p>
+             </div>
+         </div>
+     </div>
+{% endblock content %}
