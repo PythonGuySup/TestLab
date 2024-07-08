@@ -1,10 +1,12 @@
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError, HttpResponseForbidden
 from tests.forms import ValidTest, ValidQuestion, ValidAnswer
-from tests.models import Test, Question, Category, User, Answer
+from tests.models import Test, Question, Category, Answer
 from datetime import datetime
 from json import JSONDecodeError, loads
 
@@ -28,18 +30,16 @@ def test_questions(request, test_id):
 
     return render(request, 'test_questions.html', context)
 
+
 def test_result(request, test_id):
     test = Test.objects.get(id=test_id)
     return render(request, 'test_result.html')
 
 
-
-def create_test(test, test_id):
-    
+def create_test(test, test_id, user):
     test.instance.category, created = Category.objects.get_or_create(name=test.cleaned_data['category'])
-    user = test.cleaned_data['author']  # временное решение, потом будем получать из сеанса
+    test.instance.author = user
 
-    test.instance.author = User.objects.get(username=user)
     if test_id is None:
         test.instance.created_at = datetime.now()
     test.instance.updated_at = datetime.now()
@@ -56,26 +56,28 @@ def create_answer(answer, question):
     answer.instance.question = question
     answer.save()
 
+
 def clear_questions(test_id):
     questions = Question.objects.filter(test=test_id).delete()
 
+
 @transaction.atomic
 def constructor_post(request, test_id):
+    print(test_id)
     try:
 
         params_json = loads(request.body)
-        if Test.objects.filter(id = test_id).exists():
+        if Test.objects.filter(id=test_id).exists():
             test = Test.objects.get(id=test_id)
             test_form = ValidTest(params_json, instance=test)
         else:
             test_form = ValidTest(params_json)
-            
-            
+
         if test_form.is_valid():
 
-            create_test(test_form, test_id)
+            create_test(test_form, test_id, request.user)
             clear_questions(test_id)
-            
+
             for question_json in test_form.cleaned_data['questions'].values():
 
                 question_form = ValidQuestion(question_json)
@@ -94,35 +96,40 @@ def constructor_post(request, test_id):
                             return HttpResponseBadRequest('invalid answer data:' + str(answer_json))
                     if not one_right:
                         transaction.set_rollback(True)
-                        return HttpResponseBadRequest('At least one answer must be correct:' + str(question_form.cleaned_data['answers']))
+                        return HttpResponseBadRequest(
+                            'At least one answer must be correct:' + str(question_form.cleaned_data['answers']))
                 else:
                     transaction.set_rollback(True)
                     return HttpResponseBadRequest('invalid question data:' + str(question_json))
-            
+
         else:
             transaction.set_rollback(True)
             return HttpResponseBadRequest('invalid test data:' + str(params_json))
-        
+
         # transaction.set_rollback(True) # отключил транзакцию для тестов
         return HttpResponse("Test add sucsessfull")
 
     except JSONDecodeError:
         transaction.set_rollback(True)
         return HttpResponseBadRequest('invalid stream params to JSON: ' + str(request.body))
-    
+
     except Exception as E:
         transaction.set_rollback(True)
         return HttpResponseServerError(E)
 
 
-def constructor_get(resuest, test_id):
+def constructor_get(request, test_id):
     if test_id is None:
-        return render(resuest, 'constructor.html')
+        return render(request, 'constructor.html')
     else:
         data = {}
         test = Test.objects.get(id=test_id)
+
+        if test.author != request.user:
+            raise PermissionDenied
+
         questions = Question.objects.filter(test=test)
-        
+
         data['test_id'] = test_id
         data['category'] = test.category.name
         data['time'] = str(test.time)
@@ -131,24 +138,27 @@ def constructor_get(resuest, test_id):
         data['author'] = test.author.username
         data['questions'] = {}
         for i, question in enumerate(questions):
-            data['questions'][f'{i+1}'] = {'question': question.question, 'multiple_ans': question.multiple_ans, 'answers': {}}
+            data['questions'][f'{i + 1}'] = {'question': question.question, 'multiple_ans': question.multiple_ans,
+                                             'answers': {}}
             answers = Answer.objects.filter(question=question)
             for j, answer in enumerate(answers):
-                data['questions'][f'{i+1}']['answers'][f'{i}_{j}'] = {'answer': answer.answer, 'right_answer': answer.right_answer}
-        
-        return render(resuest, 'constructor.html', context={'data': data})
+                data['questions'][f'{i + 1}']['answers'][f'{i}_{j}'] = {'answer': answer.answer,
+                                                                        'right_answer': answer.right_answer}
+
+        return render(request, 'constructor.html', context={'data': data})
 
 
 # Create your views here.
 
-def constructor(request, test_id = None):
+@login_required(login_url='login')
+def constructor(request, test_id=None):
     if request.method == 'POST':
         return constructor_post(request, test_id)
     elif request.method == 'GET':
         return constructor_get(request, test_id)
 
     # return render(request, 'get_tocken.html') получение токена для postman
-    
-def contructor_result(request, test_id = None):
-    return render(request, 'constructor_result.html', context={'test_id':test_id})
-    
+
+
+def contructor_result(request, test_id=None):
+    return render(request, 'constructor_result.html', context={'test_id': test_id})

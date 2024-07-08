@@ -5,9 +5,11 @@ from django.contrib import messages
 from .forms import RegistrationForm
 from main.views import home_redirect
 
+
 def profile(request):
     return render(request, 'profile.html')
-  
+
+
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -26,9 +28,12 @@ def register(request):
         form = RegistrationForm()
     return render(request, 'registration.html', {'form': form})
 
+
 def logout_view(request):
     logout(request)
     return redirect(home_redirect)
+
+
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
