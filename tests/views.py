@@ -146,14 +146,20 @@ def constructor_get(request, test_id):
         data['description'] = test.description
         data['author'] = test.author.username
         data['questions'] = {}
+        count_questions = 0
+        count_answers = 0
         for i, question in enumerate(questions):
+            count_questions += 1
             data['questions'][f'{i + 1}'] = {'question': question.question, 'multiple_ans': question.multiple_ans,
                                              'answers': {}}
             answers = Answer.objects.filter(question=question)
             for j, answer in enumerate(answers):
+                count_answers += 1
                 data['questions'][f'{i + 1}']['answers'][f'{i}_{j}'] = {'answer': answer.answer,
                                                                         'right_answer': answer.right_answer}
 
+        data['count_questions'] = count_questions
+        data['count_answers'] = count_answers
         return render(request, 'constructor.html', context={'data': data})
 
 
