@@ -1,10 +1,10 @@
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError, JsonResponse
 from tests.forms import ValidTest, ValidQuestion, ValidAnswer
-from tests.models import Test, Question, Category, User, Answer
+from tests.models import Test, Question, Category, User, Answer, Result
 from datetime import datetime
 from json import JSONDecodeError, loads
 
@@ -12,7 +12,6 @@ from json import JSONDecodeError, loads
 def test_detail(request, test_id):
     test = Test.objects.get(pk=test_id)
     return render(request, 'test_detail.html', {'test': test})
-
 
 def test_questions(request, test_id):
     test = Test.objects.get(id=test_id)
@@ -30,7 +29,7 @@ def test_questions(request, test_id):
 
 def test_result(request, test_id):
     test = Test.objects.get(id=test_id)
-    return render(request, 'test_result.html')
+    return render(request, 'test_result.html', {'test': test})
 
 
 
