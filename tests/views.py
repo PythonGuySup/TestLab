@@ -15,7 +15,6 @@ def test_detail(request, test_id):
     test = Test.objects.get(pk=test_id)
     return render(request, 'test_detail.html', {'test': test})
 
-
 def test_questions(request, test_id):
     test = Test.objects.get(id=test_id)
     questions_list = Question.objects.filter(test=test)
@@ -33,7 +32,7 @@ def test_questions(request, test_id):
 
 def test_result(request, test_id):
     test = Test.objects.get(id=test_id)
-    return render(request, 'test_result.html')
+    return render(request, 'test_result.html', {'test': test})
 
 
 def create_test(test, test_id, user):
