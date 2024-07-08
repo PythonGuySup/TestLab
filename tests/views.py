@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
@@ -27,6 +27,11 @@ def test_questions(request, test_id):
     }
 
     return render(request, 'test_questions.html', context)
+
+def test_result(request, test_id):
+    test = Test.objects.get(id=test_id)
+    return render(request, 'test_result.html')
+
 
 
 def create_test(test):
