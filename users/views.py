@@ -4,6 +4,40 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from .forms import RegistrationForm
 from main.views import home_redirect
+from django.conf import settings
+
+def error_500_view(request, exception):
+    return render(request, '500.html')
+
+def error_410_view(request, exception):
+    return render(request, '410.html')
+
+def error_409_view(request, exception):
+    return render(request, '409.html')
+
+def error_404_view(request, exception):
+    return render(request, '404.html')
+
+def error_403_view(request, exception):
+    return render(request, '403.html')
+
+def error_401_view(request, exception):
+    return render(request, '401.html')
+
+def error_400_view(request, exception):
+    return render(request, '400.html')
+
+def error_304_view(request, exception):
+    return render(request, '304.html')
+
+def error_204_view(request, exception):
+    return render(request, '204.html')
+
+def error_201_view(request, exception):
+    return render(request, '201.html')
+
+def error_200_view(request, exception):
+    return render(request, '200.html')
 
 def profile(request):
     return render(request, 'profile.html')
