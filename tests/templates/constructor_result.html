@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block page1 %}  {% endblock page1 %}
+{% block page2 %}  {% endblock page2 %}
+
+{% block content %}
+
+<div class="alert alert-success" role="alert">
+    Тест успешно {% if test_id %} изменён {% else %} добавлен {%endif%}! 
+</div>
+
+<div align="center">
+    <button class="btn btn-primary" onclick="document.location='/'">На главную</button>
+</div>
+
+{% endblock content %}
