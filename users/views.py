@@ -39,9 +39,11 @@ def error_201_view(request, exception):
 def error_200_view(request, exception):
     return render(request, '200.html')
 
+
 def profile(request):
     return render(request, 'profile.html')
-  
+
+
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -60,9 +62,12 @@ def register(request):
         form = RegistrationForm()
     return render(request, 'registration.html', {'form': form})
 
+
 def logout_view(request):
     logout(request)
     return redirect(home_redirect)
+
+
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
