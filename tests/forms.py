@@ -3,6 +3,7 @@ from tests.models import Test, Question, Answer
 
 
 class ValidTest(forms.ModelForm):
+
     class Meta:
         model = Test
         fields = ['time', 'title', 'description']
@@ -12,6 +13,7 @@ class ValidTest(forms.ModelForm):
 
 
 class ValidQuestion(forms.ModelForm):
+
     class Meta:
         model = Question
         fields = ['question', 'multiple_ans']
@@ -23,3 +25,4 @@ class ValidAnswer(forms.ModelForm):
     class Meta:
         model = Answer
         fields = ['answer', 'right_answer']
+

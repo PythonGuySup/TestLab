@@ -1,11 +1,12 @@
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError, HttpResponseForbidden
 from tests.forms import ValidTest, ValidQuestion, ValidAnswer
-from tests.models import Test, Question, Category, User, Answer
+from tests.models import Test, Question, Category, Answer
 from datetime import datetime
 from json import JSONDecodeError, loads
 
@@ -62,6 +63,7 @@ def clear_questions(test_id):
 
 @transaction.atomic
 def constructor_post(request, test_id):
+    print(test_id)
     try:
 
         params_json = loads(request.body)
@@ -116,12 +118,16 @@ def constructor_post(request, test_id):
         return HttpResponseServerError(E)
 
 
-def constructor_get(resuest, test_id):
+def constructor_get(request, test_id):
     if test_id is None:
-        return render(resuest, 'constructor.html')
+        return render(request, 'constructor.html')
     else:
         data = {}
         test = Test.objects.get(id=test_id)
+
+        if test.author != request.user:
+            raise PermissionDenied
+
         questions = Question.objects.filter(test=test)
 
         data['test_id'] = test_id
@@ -139,7 +145,7 @@ def constructor_get(resuest, test_id):
                 data['questions'][f'{i + 1}']['answers'][f'{i}_{j}'] = {'answer': answer.answer,
                                                                         'right_answer': answer.right_answer}
 
-        return render(resuest, 'constructor.html', context={'data': data})
+        return render(request, 'constructor.html', context={'data': data})
 
 
 # Create your views here.
