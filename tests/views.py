@@ -48,6 +48,8 @@ def test_detail(request, test_id):
     return render(request, 'test_detail.html', {'test': test})
 
 def test_questions(request, test_id):
+    if request.method == 'POST':
+        print(request.POST)
     test = Test.objects.get(id=test_id)
     questions_list = Question.objects.filter(test=test)
     paginator = Paginator(questions_list, 4)
