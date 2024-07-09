@@ -16,7 +16,7 @@ def get_tests_slices(page: int, search_query: str) -> tuple[Test, int]:
     test_quantity = all_test.count()
     how_many_pages = test_quantity // test_quantity_at_page
 
-    if page > how_many_pages or page < 1:
+    if test_quantity != 0 and (1 > how_many_pages or page < 1):
         raise Http404
 
     if test_quantity % test_quantity_at_page != 0:
