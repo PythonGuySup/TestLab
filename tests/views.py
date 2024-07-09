@@ -92,6 +92,11 @@ def clear_questions(test_id):
     questions = Question.objects.filter(test=test_id).delete()
 
 
+def rollback(message, details):
+    transaction.set_rollback(True)
+    return HttpResponseBadRequest(message, str(details))
+
+
 @transaction.atomic
 def constructor_post(request, test_id):
     print(test_id)
@@ -100,6 +105,10 @@ def constructor_post(request, test_id):
         params_json = loads(request.body)
         if Test.objects.filter(id=test_id).exists():
             test = Test.objects.get(id=test_id)
+            
+            if test.author != request.user:
+                raise PermissionDenied
+            
             test_form = ValidTest(params_json, instance=test)
         else:
             test_form = ValidTest(params_json)
@@ -116,33 +125,33 @@ def constructor_post(request, test_id):
                 if question_form.is_valid():
 
                     create_question(question_form, test_form.instance)
-                    one_right = False
+                    count_right = 0
                     for answer_json in question_form.cleaned_data['answers'].values():
                         answer_form = ValidAnswer(answer_json)
                         if answer_form.is_valid():
-                            one_right = one_right or answer_form.cleaned_data['right_answer']
+                            if answer_form.cleaned_data['right_answer']:
+                                count_right += 1 
                             create_answer(answer_form, question_form.instance)
                         else:
-                            transaction.set_rollback(True)
-                            return HttpResponseBadRequest('invalid answer data:' + str(answer_json))
-                    if not one_right:
-                        transaction.set_rollback(True)
-                        return HttpResponseBadRequest(
-                            'At least one answer must be correct:' + str(question_form.cleaned_data['answers']))
+                            return rollback('invalid answer data:' + str(answer_json))
+                        
+                    if not count_right:
+                        return rollback('At least one answer must be correct:' + str(question_form.cleaned_data['answers']))
+                    elif question_form.cleaned_data['multiple_ans'] and count_right < 2:
+                        return rollback('You must provide at least 2 correct answers:' + str(question_form.cleaned_data['answers']))
+                    elif not question_form.cleaned_data['multiple_ans'] and count_right >= 2:
+                        return rollback('You must specify only 1 correct answer:' + str(question_form.cleaned_data['answers']))
                 else:
-                    transaction.set_rollback(True)
-                    return HttpResponseBadRequest('invalid question data:' + str(question_json))
+                    return rollback('invalid question data:' + str(question_json))
 
         else:
-            transaction.set_rollback(True)
-            return HttpResponseBadRequest('invalid test data:' + str(params_json))
+            return rollback('invalid test data:' + str(params_json))
 
         # transaction.set_rollback(True) # отключил транзакцию для тестов
         return HttpResponse("Test add sucsessfull")
 
     except JSONDecodeError:
-        transaction.set_rollback(True)
-        return HttpResponseBadRequest('invalid stream params to JSON: ' + str(request.body))
+        return rollback('invalid stream params to JSON: ' + str(request.body))
 
     except Exception as E:
         transaction.set_rollback(True)
@@ -168,14 +177,20 @@ def constructor_get(request, test_id):
         data['description'] = test.description
         data['author'] = test.author.username
         data['questions'] = {}
+        count_questions = 0
+        count_answers = 0
         for i, question in enumerate(questions):
+            count_questions += 1
             data['questions'][f'{i + 1}'] = {'question': question.question, 'multiple_ans': question.multiple_ans,
                                              'answers': {}}
             answers = Answer.objects.filter(question=question)
             for j, answer in enumerate(answers):
+                count_answers += 1
                 data['questions'][f'{i + 1}']['answers'][f'{i}_{j}'] = {'answer': answer.answer,
                                                                         'right_answer': answer.right_answer}
 
+        data['count_questions'] = count_questions
+        data['count_answers'] = count_answers
         return render(request, 'constructor.html', context={'data': data})
 
 

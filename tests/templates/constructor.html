@@ -103,8 +103,8 @@
 </form>
 
 <script>
-    let questionCounter = 1;
-    let answerCounter = 1;
+    let questionCounter = {% if data.count_questions %} {{data.count_questions}} {% else %} 1 {% endif %};
+    let answerCounter = {% if data.count_answers %} {{data.count_answers}} {% else %} 1 {% endif %};
 
     function add_question() {
         event.preventDefault()
