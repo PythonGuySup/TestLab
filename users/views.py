@@ -40,10 +40,11 @@ def error_200_view(request, exception):
     return render(request, '200.html')
 
 
+
 def profile(request):
     return render(request, 'profile.html')
 
-
+  
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
