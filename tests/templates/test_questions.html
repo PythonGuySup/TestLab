@@ -35,17 +35,18 @@
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button type="submit" class="btn btn-primary">Завершить тест</button>
             </div>
-        </form>
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                    <button type="submit" name="previous" class="btn btn-outline-primary">Назад</button>
-                {% endif %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <button type="submit" name="previous" class="btn btn-outline-primary">Назад</button>
+                    {% endif %}
 
-                {% if page_obj.has_next %}
-                   <button type="submit" name="next" class="btn btn-outline-primary">Следующая</button>
-                {% endif %}
-            </ul>
-        </nav>
+                    {% if page_obj.has_next %}
+                       <button type="submit" name="next" class="btn btn-outline-primary">Следующая</button>
+                    {% endif %}
+                </ul>
+            </nav>
+        </form>
+
     </div>
 {% endblock content %}

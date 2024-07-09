@@ -10,49 +10,62 @@ from tests.models import Test, Question, Category, Answer
 from datetime import datetime
 from json import JSONDecodeError, loads
 
+
 def error_500_view(request, exception):
     return render(request, '500.html')
+
 
 def error_410_view(request, exception):
     return render(request, '410.html')
 
+
 def error_409_view(request, exception):
     return render(request, '409.html')
+
 
 def error_404_view(request, exception):
     return render(request, '404.html')
 
+
 def error_403_view(request, exception):
     return render(request, '403.html')
+
 
 def error_401_view(request, exception):
     return render(request, '401.html')
 
+
 def error_400_view(request, exception):
     return render(request, '400.html')
+
 
 def error_304_view(request, exception):
     return render(request, '304.html')
 
+
 def error_204_view(request, exception):
     return render(request, '204.html')
+
 
 def error_201_view(request, exception):
     return render(request, '201.html')
 
+
 def error_200_view(request, exception):
     return render(request, '200.html')
+
 
 def test_detail(request, test_id):
     test = Test.objects.get(pk=test_id)
     return render(request, 'test_detail.html', {'test': test})
+
 
 def test_questions(request, test_id):
     if request.method == 'POST':
         print(request.POST)
     test = Test.objects.get(id=test_id)
     questions_list = Question.objects.filter(test=test)
-    paginator = Paginator(questions_list, 4)
+    paginator = Paginator(questions_list, settings.QUESTIONS_PER_PAGE)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -107,10 +120,10 @@ def constructor_post(request, test_id):
         params_json = loads(request.body)
         if Test.objects.filter(id=test_id).exists():
             test = Test.objects.get(id=test_id)
-            
+
             if test.author != request.user:
                 raise PermissionDenied
-            
+
             test_form = ValidTest(params_json, instance=test)
         else:
             test_form = ValidTest(params_json)
@@ -132,17 +145,20 @@ def constructor_post(request, test_id):
                         answer_form = ValidAnswer(answer_json)
                         if answer_form.is_valid():
                             if answer_form.cleaned_data['right_answer']:
-                                count_right += 1 
+                                count_right += 1
                             create_answer(answer_form, question_form.instance)
                         else:
                             return rollback('invalid answer data:' + str(answer_json))
-                        
+
                     if not count_right:
-                        return rollback('At least one answer must be correct:' + str(question_form.cleaned_data['answers']))
+                        return rollback(
+                            'At least one answer must be correct:' + str(question_form.cleaned_data['answers']))
                     elif question_form.cleaned_data['multiple_ans'] and count_right < 2:
-                        return rollback('You must provide at least 2 correct answers:' + str(question_form.cleaned_data['answers']))
+                        return rollback(
+                            'You must provide at least 2 correct answers:' + str(question_form.cleaned_data['answers']))
                     elif not question_form.cleaned_data['multiple_ans'] and count_right >= 2:
-                        return rollback('You must specify only 1 correct answer:' + str(question_form.cleaned_data['answers']))
+                        return rollback(
+                            'You must specify only 1 correct answer:' + str(question_form.cleaned_data['answers']))
                 else:
                     return rollback('invalid question data:' + str(question_json))
 
