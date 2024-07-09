@@ -80,8 +80,10 @@
                 </div>
                 <br>
                 <button type="submit" class="btn btn-success">Зарегистрироваться</button>
-                <a href="http://127.0.0.1:8000/users/login/"> <button type="button" class="btn btn-primary">Авторизация</button></a>
+                <a href="{% url 'login' %}"> <button type="button" class="btn btn-primary">Авторизация</button></a>
             </form>
+
+
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

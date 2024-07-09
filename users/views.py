@@ -54,7 +54,7 @@ def register(request):
             user.save()
             login(request, user)
             messages.success(request, "Регистрация успешно завершена.")
-            return redirect('login.html')
+            return redirect('login')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
