@@ -10,21 +10,23 @@
     <div class="container my-5">
         <form method="post" action="{% url 'test_questions' test.id %}">
             {% csrf_token %}
+
             {% for question in page_obj %}
                 <div class="card mb-4">
                     <div class="card-body">
                         <h3 class="card-title">{{ question.question }}</h3>
                         {% if question.multiple_ans %}
-                            {% for answer in question.answer_set.all %}
+                            {% for answer in page_obj.question %}
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="{{ question.id }}" value="{{ answer.id }}">
                                     <label class="form-check-label">{{ answer.answer }}</label>
                                 </div>
                             {% endfor %}
                         {% else %}
-                            {% for answer in question.answer_set.all %}
+                            {% for answer, status in page_obj|get_item:question %}
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="{{ question.id }}" value="{{ answer.id }}">
+                                    <input class="form-check-input" type="radio" name="{{ question.id }}" value="{{ answer.id }}"
+                                    {% if status %}checked{% endif %}>
                                     <label class="form-check-label">{{ answer.answer }}</label>
                                 </div>
                             {% endfor %}
@@ -32,20 +34,21 @@
                     </div>
                 </div>
             {% endfor %}
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="submit" class="btn btn-primary">Завершить тест</button>
-            </div>
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                        <button type="submit" name="previous" class="btn btn-outline-primary">Назад</button>
-                    {% endif %}
 
-                    {% if page_obj.has_next %}
-                       <button type="submit" name="next" class="btn btn-outline-primary">Следующая</button>
-                    {% endif %}
-                </ul>
-            </nav>
+            <ul class="pagination justify-content-center">
+                {% if has_previous %}
+                    <button type="submit" name="previous" class="btn btn-outline-primary">Назад</button>
+                {% endif %}
+
+                {% if has_next %}
+                    <button type="submit" name="next" class="btn btn-outline-primary">Следующая</button>
+                {% endif %}
+            </ul>
+        {% if is_last_page %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" name="end" class="btn btn-primary">Завершить тест</button>
+            </div>
+        {% endif %}
         </form>
 
     </div>
