@@ -20,18 +20,8 @@ def init_session(request, test_id):
         question_slice = all_questions[settings.QUESTIONS_PER_PAGE * (i - 1):settings.QUESTIONS_PER_PAGE * i]
         request.session['dict_{test_id}'.format(test_id=test_id)]['page_{i}'.format(i=i)] = {}
         for j in range(1, len(question_slice) + 1):
-            request.session['dict_{test_id}'.format(test_id=test_id)]['page_{i}'.format(i=i)]\
-                [question_slice[j-1].id] = {}
-            for answer in question_slice[j-1].answer_set.all():
-
-                request.session['dict_{test_id}'.format(test_id=test_id)]['page_{i}'.format(i=i)]\
-                    [question_slice[j-1].id][answer.id] = False
-
-    request.session['dict_{test_id}'.format(test_id=test_id)]['next'] = False
-    request.session['dict_{test_id}'.format(test_id=test_id)]['previous'] = False
-
-    return how_many_pages
-
-
-
-
+            request.session['dict_{test_id}'.format(test_id=test_id)]['page_{i}'.format(i=i)] \
+                [question_slice[j - 1].id] = {}
+            for answer in question_slice[j - 1].answer_set.all():
+                request.session['dict_{test_id}'.format(test_id=test_id)]['page_{i}'.format(i=i)] \
+                    [question_slice[j - 1].id][answer.id] = False

@@ -8,7 +8,7 @@ from tests.models import Test, Question, Category, Answer
 from datetime import datetime
 from json import JSONDecodeError, loads
 
-from tests.utils.format_data import format_data
+from tests.utils.flush_test_in_session import flush_test_in_session
 from tests.utils.reformat_data import reformat_data
 from tests.utils.update_session import update_session
 from tests.utils.init_session import init_session
@@ -65,21 +65,15 @@ def error_200_view(request, exception):
 
 
 def test_detail(request, test_id):
-
-    if 'dict_{test_id}'.format(test_id=test_id) in request.session.keys():
-        for key in list(request.session.keys()):
-            if not key.startswith("_"):  # skip keys set by the django system
-                del request.session[key]
-
     test = Test.objects.get(pk=test_id)
     return render(request, 'test_detail.html', {'test': test})
 
 
 def test_questions(request, test_id):
     if request.method == 'POST':
-        data = format_data(request, test_id)
-        update_session(request, data, test_id)
-
+        update_session(request, test_id)
+        if request.POST.get('end') == '':
+            return redirect('test_result', test_id)
     else:
         if not request.session.get(f'dict_{test_id}'.format(test_id=test_id), False):
             init_session(request, test_id)
@@ -90,26 +84,45 @@ def test_questions(request, test_id):
     page_obj = reformat_data(page_obj)
     has_next = False
     has_previous = False
+    is_last_page = False
 
     if request.session['dict_{test_id}'.format(test_id=test_id)]['current_page'] < \
             request.session['dict_{test_id}'.format(test_id=test_id)]['pages']:
         has_next = True
     if request.session['dict_{test_id}'.format(test_id=test_id)]['current_page'] > 1:
         has_previous = True
+    if page_number == request.session['dict_{test_id}'.format(test_id=test_id)]['pages']:
+        is_last_page = True
 
     context = {
         'test': test,
         'page_obj': page_obj,
         'has_next': has_next,
-        'has_previous': has_previous
+        'has_previous': has_previous,
+        "is_last_page": is_last_page
     }
 
     return render(request, 'test_questions.html', context)
 
 
+
+
 def test_result(request, test_id):
     test = Test.objects.get(id=test_id)
-    return render(request, 'test_result.html', {'test': test})
+    session_dict = request.session['dict_{test_id}'.format(test_id=test_id)]
+    result = 0
+
+    for i in range(1, session_dict['pages'] + 1):
+        for question, answer_dict in session_dict['page_{i}'.format(i=i)].items():
+            for answer, status in answer_dict.items():
+                db_answer = Answer.objects.get(id=answer)
+                if status:
+                    if db_answer.right_answer:
+                        result += 1
+
+    flush_test_in_session(request, test.id)
+
+    return render(request, 'test_result.html', {'test': test, 'result': result})
 
 
 def create_test(test, test_id, user):

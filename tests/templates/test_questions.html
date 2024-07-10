@@ -44,6 +44,11 @@
                     <button type="submit" name="next" class="btn btn-outline-primary">Следующая</button>
                 {% endif %}
             </ul>
+        {% if is_last_page %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" name="end" class="btn btn-primary">Завершить тест</button>
+            </div>
+        {% endif %}
         </form>
 
     </div>
