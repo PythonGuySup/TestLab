@@ -15,16 +15,20 @@
 <main>
 
     <aside>
-
         <button class="collapsible"><b>Категории</b></button>
         <div class="content">
-            <p>Математика</p>
-            <p>Информатика</p>
-            <p>Java</p>
-            <p>Лингвистика</p>
+            {% if categories %}
+                <li><a href="?">Все</a></li>
+                {% for category in categories %}
+                    <li>
+                        <a href="?category={{ category.id }}">{{ category.name }}</a>
+                    </li>
+                {% endfor %}
+            {% endif %}
         </div>
 
 
+    
         <button class="collapsible"><b>Статистика</b></button>
         <div class="content">
             <p>Средний балл: <b>6.7</b></p>
@@ -82,6 +86,7 @@
 
                 {% for page in pages %}
                 <a href="{% url 'home_page' page  %}" class="btn"><b>{{ page }}</b></a>
+                
 
                 {% endfor %}
                 <a href="{% url 'home_page' last_page %}" class="#"><svg width="18px" height="17px" viewBox="-1 0 18 17"
