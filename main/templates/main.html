@@ -36,10 +36,21 @@
 
     </aside>
     <section class="other_content">
-        <form method="POST" class="post-form">{% csrf_token %}
-            <input type="text" name="search_query" placeholder="Поиск" class="search">
+        <form method="POST" class="post-form form-inline">{% csrf_token %}
+            <div class="form-group mr-3">
+                <input type="text" name="search_query" placeholder="Поиск" class="search form-control">
+            </div>
+            <div class="form-group mr-3">
+                <label for="ordering">Сортировать по:</label>
+                <select name="ordering" id="ordering" class="form-control">
+                    <option value="created_at" {% if ordering == 'created_at' %}selected{% endif %}>По умолчанию</option>
+                    <option value="title" {% if ordering == 'title' %}selected{% endif %}>От А до Я</option>
+                    <option value="-title" {% if ordering == '-title' %}selected{% endif %}>От Я до А</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Применить</button>
         </form>
-
+    
         {% for test in tests %}
              <div onclick="window.location.href='{% url 'test_detail' test.2 %}';" style="display: block; cursor: pointer;">
                  <div class="test">
