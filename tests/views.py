@@ -119,7 +119,7 @@ def rollback(message, details):
 
 @transaction.atomic
 def constructor_post(request, test_id):
-    print(test_id)
+
     try:
 
         params_json = loads(request.body)
