@@ -6,45 +6,15 @@ from .forms import RegistrationForm
 from main.views import home_redirect
 from django.conf import settings
 
-def error_500_view(request, exception):
-    return render(request, '500.html')
-
-def error_410_view(request, exception):
-    return render(request, '410.html')
-
-def error_409_view(request, exception):
-    return render(request, '409.html')
-
-def error_404_view(request, exception):
-    return render(request, '404.html')
-
-def error_403_view(request, exception):
-    return render(request, '403.html')
-
-def error_401_view(request, exception):
-    return render(request, '401.html')
-
-def error_400_view(request, exception):
-    return render(request, '400.html')
-
-def error_304_view(request, exception):
-    return render(request, '304.html')
-
-def error_204_view(request, exception):
-    return render(request, '204.html')
-
-def error_201_view(request, exception):
-    return render(request, '201.html')
-
-def error_200_view(request, exception):
-    return render(request, '200.html')
-
-
+def error_handler(request, exception):
+    status_code = getattr(exception, 'status_code', 500)
+    template_name = f"{status_code}.html"
+    return render(request, template_name, status=status_code)
 
 def profile(request):
     return render(request, 'profile.html')
 
-  
+
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)

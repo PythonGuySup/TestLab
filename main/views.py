@@ -2,64 +2,31 @@ from django.shortcuts import render, redirect
 from .utils.get_tests_slices import get_tests_slices
 from django.conf import settings
 
-
-def error_500_view(request, exception):
-    return render(request, '500.html')
-
-
-def error_410_view(request, exception):
-    return render(request, '410.html')
-
-
-def error_409_view(request, exception):
-    return render(request, '409.html')
-
-
-def error_404_view(request, exception):
-    return render(request, '404.html')
-
-
-def error_403_view(request, exception):
-    return render(request, '403.html')
-
-
-def error_401_view(request, exception):
-    return render(request, '401.html')
-
-
-def error_400_view(request, exception):
-    return render(request, '400.html')
-
-
-def error_304_view(request, exception):
-    return render(request, '304.html')
-
-
-def error_204_view(request, exception):
-    return render(request, '204.html')
-
-
-def error_201_view(request, exception):
-    return render(request, '201.html')
-
-
-def error_200_view(request, exception):
-    return render(request, '200.html')
+def error_handler(request, exception):
+    status_code = getattr(exception, 'status_code', 500)
+    template_name = f"{status_code}.html"
+    return render(request, template_name, status=status_code)
 
 
 def home_page(request, page):
-    if request.method == "POST":
+    if 'search_query' in request.POST:
         search_query = request.POST['search_query']
     else:
         search_query = None
 
-    tests, how_many_pages = get_tests_slices(page, search_query)
+    if 'ordering' in request.POST:
+        ordering = request.POST['ordering']
+    else:
+        ordering = 'id'
+
+    tests, how_many_pages = get_tests_slices(page, search_query, ordering)
 
     tests_to_response = [(test.title, test.description, test.id) for test in tests]
     pages_iterator = [i for i in range(1, how_many_pages + 1)]
-    context = {'tests': tests_to_response, 'pages': pages_iterator, 'last_page': how_many_pages}
+    context = {'tests': tests_to_response, 'pages': pages_iterator, 'last_page': how_many_pages, 'ordering': ordering}
 
     return render(request, 'main.html', context)
+
 
 
 def home_redirect(request):
