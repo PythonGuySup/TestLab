@@ -13,12 +13,13 @@
 </head>
 
 <body>
-    
     <header>
         <div class="title">{% block logo_title %} TestLab {% endblock logo_title %}</div>
         <nav>
+
             <button class="btn btn-outline-primary"><a href={% block page1url %} "#" {% endblock page1url %}>{% block page1 %} Default page 1 {% endblock page1 %}</a></button>
             <button class="btn btn-outline-success"><a href={% block page2url %} "#" {% endblock page2url %}>{% block page2 %} Default page 2 {% endblock page2 %}</a></button>
+
         </nav>
     </header>
     {% block content %} {% endblock %}
