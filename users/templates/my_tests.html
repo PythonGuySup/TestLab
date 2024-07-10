@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block logo_title %} TestLab {% endblock logo_title %}
+{% block page1 %} Главная {% endblock page1 %}
+{% block page2 %} Конструктор {% endblock page2 %}
+{% block account %} Акк {% endblock account %}
+
+{% block content %}
+<main class="container mt-5" >
+    <div class="row" style="width: 100%">
+        <aside class="col-md-3 pl-0" style="width: 200px;">
+            <ul class="nav flex-column">
+                <li class="nav-item mb-3">
+                    <a class="nav-link active" href="{% url 'profile' %}">Профиль</a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="{% url 'stats' %}">Статистика</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'my_tests' %}">Мои тесты</a>
+                </li>
+            </ul>
+        </aside>
+        <section class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Мои тесты</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 d-flex flex-wrap">
+                            {% for test in tests %}
+                                <div class="card mb-3 mr-3" style="width: 20rem;">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ test.title }}</h5>
+                                        <p class="card-text">{{ test.description }}</p>
+                                        <a href="{% url 'test_detail' test.id %}" class="btn btn-primary">Перейти к тесту</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock content %}
+

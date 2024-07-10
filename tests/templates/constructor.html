@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
-{% block page1 %} {% endblock page1 %}
-{% block page2 %} {% endblock page2 %}
+{% block page1 %} Главная {% endblock page1 %}
+{% block page2 %} Авторизация {% endblock page2 %}
+
+{% block page1url %} {% url 'home_page' 1  %}{% endblock page1url %}
+{% block page2url %} {% url 'login' %}{% endblock page2url %}
 
 {% block content %}
 
