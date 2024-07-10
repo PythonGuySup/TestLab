@@ -114,7 +114,7 @@ def clear_questions(test_id):
 
 def rollback(message, details):
     transaction.set_rollback(True)
-    return HttpResponseBadRequest(message, str(details))
+    return HttpResponseBadRequest(message + str(details))
 
 
 @transaction.atomic
@@ -153,28 +153,28 @@ def constructor_post(request, test_id):
                                 count_right += 1
                             create_answer(answer_form, question_form.instance)
                         else:
-                            return rollback('invalid answer data:' + str(answer_json))
+                            return rollback('invalid answer data:', str(answer_json))
 
                     if not count_right:
                         return rollback(
-                            'At least one answer must be correct:' + str(question_form.cleaned_data['answers']))
+                            'At least one answer must be correct:', str(question_form.cleaned_data['answers']))
                     elif question_form.cleaned_data['multiple_ans'] and count_right < 2:
                         return rollback(
-                            'You must provide at least 2 correct answers:' + str(question_form.cleaned_data['answers']))
+                            'You must provide at least 2 correct answers:', str(question_form.cleaned_data['answers']))
                     elif not question_form.cleaned_data['multiple_ans'] and count_right >= 2:
                         return rollback(
-                            'You must specify only 1 correct answer:' + str(question_form.cleaned_data['answers']))
+                            'You must specify only 1 correct answer:', str(question_form.cleaned_data['answers']))
                 else:
-                    return rollback('invalid question data:' + str(question_json))
+                    return rollback('invalid question data:', str(question_json))
 
         else:
-            return rollback('invalid test data:' + str(params_json))
+            return rollback('invalid test data:', str(params_json))
 
         # transaction.set_rollback(True) # отключил транзакцию для тестов
         return HttpResponse("Test add sucsessfull")
 
     except JSONDecodeError:
-        return rollback('invalid stream params to JSON: ' + str(request.body))
+        return rollback('invalid stream params to JSON: ', str(request.body))
 
     except Exception as E:
         transaction.set_rollback(True)
