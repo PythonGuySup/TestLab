@@ -1,14 +1,23 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator
-from django.shortcuts import render
-from django.conf import settings
+from django.shortcuts import render, redirect
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
 from tests.forms import ValidTest, ValidQuestion, ValidAnswer
 from tests.models import Test, Question, Category, Answer
 from datetime import datetime
 from json import JSONDecodeError, loads
+
+from tests.utils.format_data import format_data
+from tests.utils.reformat_data import reformat_data
+from tests.utils.update_session import update_session
+from tests.utils.init_session import init_session
+from django.template.defaulttags import register
+
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key).items()
 
 
 def error_500_view(request, exception):
@@ -56,22 +65,43 @@ def error_200_view(request, exception):
 
 
 def test_detail(request, test_id):
+
+    if 'dict_{test_id}'.format(test_id=test_id) in request.session.keys():
+        for key in list(request.session.keys()):
+            if not key.startswith("_"):  # skip keys set by the django system
+                del request.session[key]
+
     test = Test.objects.get(pk=test_id)
     return render(request, 'test_detail.html', {'test': test})
 
 
 def test_questions(request, test_id):
     if request.method == 'POST':
-        print(request.POST)
+        data = format_data(request, test_id)
+        update_session(request, data, test_id)
+
+    else:
+        if not request.session.get(f'dict_{test_id}'.format(test_id=test_id), False):
+            init_session(request, test_id)
+
     test = Test.objects.get(id=test_id)
-    questions_list = Question.objects.filter(test=test)
-    paginator = Paginator(questions_list, settings.QUESTIONS_PER_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_number = request.session['dict_{test_id}'.format(test_id=test_id)]['current_page']
+    page_obj = request.session['dict_{test_id}'.format(test_id=test_id)]['page_{i}'.format(i=page_number)]
+    page_obj = reformat_data(page_obj)
+    has_next = False
+    has_previous = False
+
+    if request.session['dict_{test_id}'.format(test_id=test_id)]['current_page'] < \
+            request.session['dict_{test_id}'.format(test_id=test_id)]['pages']:
+        has_next = True
+    if request.session['dict_{test_id}'.format(test_id=test_id)]['current_page'] > 1:
+        has_previous = True
 
     context = {
         'test': test,
-        'page_obj': page_obj
+        'page_obj': page_obj,
+        'has_next': has_next,
+        'has_previous': has_previous
     }
 
     return render(request, 'test_questions.html', context)
