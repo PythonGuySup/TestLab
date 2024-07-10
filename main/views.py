@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+
+from tests.models import Category
 from .utils.get_tests_slices import get_tests_slices
 from django.conf import settings
 
@@ -17,16 +19,29 @@ def home_page(request, page):
     if 'ordering' in request.POST:
         ordering = request.POST['ordering']
     else:
-        ordering = 'id'
+        ordering = 'created_at'
 
-    tests, how_many_pages = get_tests_slices(page, search_query, ordering)
+    if 'category' in request.GET:
+        selected_category = request.GET['category']
+    else:
+        selected_category = None
+
+    tests, how_many_pages = get_tests_slices(page, search_query, ordering, selected_category)
 
     tests_to_response = [(test.title, test.description, test.id) for test in tests]
     pages_iterator = [i for i in range(1, how_many_pages + 1)]
-    context = {'tests': tests_to_response, 'pages': pages_iterator, 'last_page': how_many_pages, 'ordering': ordering}
+    categories = Category.objects.all()
+    context = {
+        'tests': tests_to_response,
+        'pages': pages_iterator,
+        'last_page': how_many_pages,
+        'ordering': ordering,
+        'categories': categories,
+        'selected_category': selected_category,
+        'search_query': search_query,
+    }
 
     return render(request, 'main.html', context)
-
 
 
 def home_redirect(request):
