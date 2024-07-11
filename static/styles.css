@@ -30,7 +30,7 @@ header {
 
 .title {
     flex-grow: 1;
-    text-align: center;
+    padding-left: 44%;
     font-size: 1.5em;
 }
 

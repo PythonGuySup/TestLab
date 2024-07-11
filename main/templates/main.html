@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 
-{% block page1 %} Создать Тест {% endblock page1 %}
+{% block page1 %} Конструктор {% endblock page1 %}
 {% block page2 %} Авторизация {% endblock page2 %}
 {% block page1url %} {% url 'constructor' %}{% endblock page1url %}
 {% block page2url %} {% url 'login' %}{% endblock page2url %}
@@ -13,28 +13,6 @@
 <main>
 
     <aside>
-        <div class="col-md-4">
-            <img src="path_to_image" alt="Фото" class="img-thumbnail">
-
-
-            <ul class="navbar-nav ms-auto">
-                {% if user.is_authenticated %}
-                <li>
-                    <a href="{% url 'profile' %}" role="button" aria-expanded="false" style="text-decoration: none">
-                        <b>{{ user.username }}</b>
-                    </a>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'register' %}">Sign up</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}">Log in</a>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
-  
         <button class="collapsible"><b>Категории</b></button>
         <div class="content">
             {% if categories %}
