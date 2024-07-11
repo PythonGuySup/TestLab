@@ -11,7 +11,6 @@ def update_user_score(user: User, user_score: UserScore) -> None:
     result_count = results.count()
     average_score = 0
 
-
     for result in results:
         result_mark = 1
         mark = result.mark
