@@ -182,10 +182,15 @@ def constructor_post(request, test_id):
 
 
 def constructor_get(request, test_id):
+    categorys = Category.objects.all()
+    data = {}
+    data['categorys'] = {}
+    for category in categorys:
+        data['categorys'][category.name] = {'name': category.name, 'selected': False}
+        
     if test_id is None:
-        return render(request, 'constructor.html')
+        return render(request, 'constructor.html', context={'data': data})
     else:
-        data = {}
         test = Test.objects.get(id=test_id)
 
         if test.author != request.user:
@@ -194,7 +199,7 @@ def constructor_get(request, test_id):
         questions = Question.objects.filter(test=test)
 
         data['test_id'] = test_id
-        data['category'] = test.category.name
+        data['categorys'][test.category.name]['selected'] = True
         data['time'] = str(test.time)
         data['title'] = test.title
         data['description'] = test.description
@@ -231,3 +236,14 @@ def constructor(request, test_id=None):
 
 def contructor_result(request, test_id=None):
     return render(request, 'constructor_result.html', context={'test_id': test_id})
+
+def delete_test(request):
+    if request.method == 'POST':
+        params = request.POST
+        
+        test = Test.objects.get(id=params['test_id'])
+        if test.author != request.user:
+            raise PermissionDenied
+        
+        test.delete()
+        return HttpResponse('Тест успешно удалён!')
