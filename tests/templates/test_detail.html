@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
 {% block page1 %} Главная {% endblock page1 %}
-{% block page2 %} Конструктор {% endblock page2 %}
-{% block account %} Акк {% endblock account %}
+{% block page2 %} Создать тест {% endblock page2 %}
+{% block page1url %} {% url 'home_redirect' %} {% endblock page1url %}
+{% block page2url %} {% url 'constructor' %} {% endblock page2url %}
 {% block title %}Описание теста{% endblock title %}
 
 {% block content %}

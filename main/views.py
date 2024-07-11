@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 
 from tests.models import Category
+from users.models import UserScore
 from .utils.get_tests_slices import get_tests_slices
 from django.conf import settings
+
 
 def error_handler(request, exception):
     status_code = getattr(exception, 'status_code', 500)
@@ -31,6 +33,15 @@ def home_page(request, page):
     tests_to_response = [(test.title, test.description, test.id) for test in tests]
     pages_iterator = [i for i in range(1, how_many_pages + 1)]
     categories = Category.objects.all()
+    user_score = None
+
+    if request.user.is_authenticated:
+        user = request.user
+        try:
+            user_score = UserScore.objects.get(user=user)
+        except UserScore.DoesNotExist:
+            pass
+
     context = {
         'tests': tests_to_response,
         'pages': pages_iterator,
@@ -39,6 +50,7 @@ def home_page(request, page):
         'categories': categories,
         'selected_category': selected_category,
         'search_query': search_query,
+        'user_score': user_score,
     }
 
     return render(request, 'main.html', context)
