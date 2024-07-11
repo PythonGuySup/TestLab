@@ -40,21 +40,18 @@
         <label for="id_title">Название теста:</label><br>
         <input class="form-control" style="width: 20%" type="text" name="title" maxlength="60" required id="id_title" value="{{ data.title|default:'' }}"><br>
 
-            <!-- <label for="id_category">Категория:</label><br>-->
-       <!-- <input class="form-control" style="width: 20%" type="text" name="category" maxlength="50" value="{{ data.category|default:'' }}" required
-            id="id_category"><br> -->
-
-            <label for="category_select">Категория:</label><br>
-            <select class="form-select" aria-label="Default select example" style="width: 20%" id="category_select" name="category">
-                <option value="">Выберите категорию</option>
-                <option value="language"> Языки </option>
-                <option value="programming"> Программирование </option>
-            </select>
+        <label for="category_select">Категория:</label><br>
+        
+        <select class="form-select" aria-label="Default select example" style="width: 20%" id="category" name="category">
+            {% comment %} <option value="">Выберите категорию</option> Мне кажется это лишний пункт, если хотите, разкоментируйте {% endcomment %}
+            {% for category in data.categorys.values %}
+                <option value="{{category.name}}" {% if category.selected%} selected {% endif %}> {{ category.name }}  </option>
+            {% endfor %}
+        </select>
 
 
-            <br><label for="id_time">Время на тест:</label>
-        <!-- <input class="form-control" style="width: 7%" type="text" name="time" required id="id_time" value="{{ data.time|default:'' }}"> -->
-        <input class="form-control" style="width: 10%" id="appt-time" type="time" name="appt-time" step="2" />
+        <br><label for="id_time">Время на тест:</label>
+        <input class="form-control" style="width: 10%" type="time" step="2" name="time" required id="id_time" value="{{ data.time|default:'' }}" />
 
 
         <br><label for="id_description">Описание:</label><br>
@@ -163,17 +160,17 @@
                 <input type="text" name="id_question_${questionCounter}" maxlength="255" required id="id_question_${questionCounter}"><button class="delete-question btn btn-danger" data-question-id="${questionCounter}" onclick="del_question('${questionCounter}')">Удалить вопрос...</button></br>
             
                 <label for="id_multiple_ans_${questionCounter}">Несколько вариантов:</label>
-                <input type="checkbox" name="multiple_ans_${questionCounter}" id="id_multiple_ans_${questionCounter}"></br></br>
+                <input type="checkbox" name="multiple_ans_${questionCounter}" id="id_multiple_ans_${questionCounter}"></br>
 
                 <div class="padding-inside">
                     <div id="answers_block_${questionCounter}">
                         <div id="answer_${questionCounter}_1">
                             <label for="id_answer_${questionCounter}_1">Ответ:</label>
-                            <input type="text" name="answer_${questionCounter}_1" maxlength="255" required id="id_answer_${questionCounter}_1"><button onclick="del_answer('${questionCounter}_1')" class="delete-answer btn btn-danger" data-answer-id="${questionCounter}_1">Удалить ответ...</button></br>
+                            <input type="text" name="answer_${questionCounter}_1" maxlength="255" required id="id_answer_${questionCounter}_1"><button onclick="del_answer('${questionCounter}_1')" class="delete-answer btn btn-danger" data-answer-id="${questionCounter}_1">Удалить ответ...</button>
                             
                             <label for="id_right_answer_${questionCounter}_1">Правильный ответ:</label>
                             <input type="checkbox" name="right_answer_${questionCounter}_1" id="id_right_answer_${questionCounter}_1"></br>
-                            </br>
+
                         </div>
                     </div>
                     <button onclick="add_answer('${questionCounter}')" class="add-answer_${questionCounter} btn btn-primary" data-question-id="${questionCounter}">Добавить ответ...</button>
@@ -208,11 +205,10 @@
         const newAnswerBlock = `
             <div id="answer_${questionId}_${answerCounter}">
                 <label for="id_answer_${questionId}_${answerCounter}">Ответ:</label>
-                <input type="text" name="answer_${questionId}_${answerCounter}" maxlength="255" required id="id_answer_${questionId}_${answerCounter}"><button class="delete-answer btn btn-danger" data-answer-id="${questionId}_${answerCounter}" onclick="del_answer('${questionCounter}_${answerCounter}')">Удалить ответ...</button></br>
+                <input type="text" name="answer_${questionId}_${answerCounter}" maxlength="255" required id="id_answer_${questionId}_${answerCounter}"><button class="delete-answer btn btn-danger" data-answer-id="${questionId}_${answerCounter}" onclick="del_answer('${questionCounter}_${answerCounter}')">Удалить ответ...</button>
                 
                 <label for="id_right_answer_${questionId}_${answerCounter}">Правильный ответ:</label>
                 <input type="checkbox" name="right_answer_${questionId}_${answerCounter}" id="id_right_answer_${questionId}_${answerCounter}"></br>
-                </br>
             </div>
         `;
         const answersBlock = document.getElementById(`answers_block_${questionId}`);
