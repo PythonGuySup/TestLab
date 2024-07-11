@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+
+from main.utils.get_user_score import get_user_score
+from tests.models import Test
 from .forms import RegistrationForm
 from main.views import home_redirect
 from django.conf import settings
@@ -14,7 +17,10 @@ def error_handler(request, exception):
 
 
 def profile(request):
-    return render(request, 'profile.html')
+    user = request.user
+    context = {"user": user}
+
+    return render(request, 'profile.html', context)
 
 
 def register(request):
@@ -56,8 +62,14 @@ def login_view(request):
 
 
 def stats(request):
-    return render(request, "stats.html")
+    user_score = get_user_score(request.user)
+    context = {'user_score': user_score}
+    return render(request, "stats.html", context)
 
 
 def my_tests(request):
-    return render(request, "my_tests.html")
+    tests = Test.objects.filter(author=request.user)
+
+    context = {'tests': tests}
+
+    return render(request, "my_tests.html", context)

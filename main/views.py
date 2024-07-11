@@ -5,6 +5,8 @@ from users.models import UserScore
 from .utils.get_tests_slices import get_tests_slices
 from django.conf import settings
 
+from .utils.get_user_score import get_user_score
+
 
 def error_handler(request, exception):
     status_code = getattr(exception, 'status_code', 500)
@@ -35,12 +37,7 @@ def home_page(request, page):
     categories = Category.objects.all()
     user_score = None
 
-    if request.user.is_authenticated:
-        user = request.user
-        try:
-            user_score = UserScore.objects.get(user=user)
-        except UserScore.DoesNotExist:
-            pass
+    user_score = get_user_score(request.user)
 
     context = {
         'tests': tests_to_response,

@@ -4,6 +4,8 @@
 {% block page1 %} Главная {% endblock page1 %}
 {% block page2 %} Конструктор {% endblock page2 %}
 {% block account %} Акк {% endblock account %}
+{% block page1url %} {% url 'home_page' 1  %}{% endblock page1url %}
+{% block page2url %} {% url 'constructor' %}{% endblock page2url %}
 
 {% block content %}
 <main class="container mt-5">
@@ -31,15 +33,11 @@
                         <div class="col-md-8">
                             <div class="d-flex align-items-center mb-3">
                                 <i class="fas fa-check-circle text-success mr-2"></i>
-                                <p class="mb-0"><strong>Пройдено тестов:</strong> 9 </p>
-                            </div>
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-file-alt text-primary mr-2"></i>
-                                <p class="mb-0"><strong>Создано тестов:</strong> 4</p>
+                                <p class="mb-0"><strong>Пройдено тестов:</strong> {{ user_score.solved_tests }} </p>
                             </div>
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-star text-warning mr-2"></i>
-                                <p class="mb-0"><strong>Средний балл за тест:</strong> 7.3/10</p>
+                                <p class="mb-0"><strong>Средний балл за тест:</strong> {{ user_score.average_score }} </p>
                             </div>
                         </div>
                         <div class="col-md-4">
