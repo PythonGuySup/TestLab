@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
 
+
+{% block page1 %} Главная {% endblock page1 %}
+{% block page2 %} :> {% endblock page2 %}
+{% block page1url %} {% url 'home_redirect' %} {% endblock page1url %}
+{% block page2url %} {% url 'home_redirect' %} {% endblock page2url %}
 {% block content %}
-{% block page1 %}  {% endblock page1 %}
-{% block page2 %}  {% endblock page2 %}
 <style>
         body {
             background-color: #f2f2f2;
