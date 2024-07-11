@@ -1,5 +1,5 @@
+from django.contrib.auth.models import User
 from django.db import transaction
-from jupyter_server.auth import User
 
 from tests.models import Result
 from users.models import UserScore
