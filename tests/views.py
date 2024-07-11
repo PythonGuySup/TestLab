@@ -236,3 +236,14 @@ def constructor(request, test_id=None):
 
 def contructor_result(request, test_id=None):
     return render(request, 'constructor_result.html', context={'test_id': test_id})
+
+def delete_test(request):
+    if request.method == 'POST':
+        params = request.POST
+        
+        test = Test.objects.get(id=params['test_id'])
+        if test.author != request.user:
+            raise PermissionDenied
+        
+        test.delete()
+        return HttpResponse('Тест успешно удалён!')
