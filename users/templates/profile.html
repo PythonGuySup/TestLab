@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block logo_title %} TestLab {% endblock logo_title %}
+{% block page1 %} Главная {% endblock page1 %}
+{% block page2 %} Конструктор {% endblock page2 %}
+{% block account %} Акк {% endblock account %}
+{% block page1url %} {% url 'home_page' 1  %}{% endblock page1url %}
+{% block page2url %} {% url 'constructor' %}{% endblock page2url %}
+
+
+
+{% block content %}
+<main class="container mt-5">
+    <div class="row" style="width: 100%">
+        <aside class="col-md-3 pl-0" style="width: 200px;">
+            <ul class="nav flex-column">
+                <li class="nav-item mb-3">
+                    <a class="nav-link active" href="#">Профиль</a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="{% url 'stats' %}">Статистика</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'my_tests' %}">Мои тесты</a>
+                </li>
+            </ul>
+        </aside>
+        <section class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Профиль</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p><strong>Имя: </strong> Александр </p>
+                            <p><strong>Фамилия:</strong> Качанов </p>
+                            <p><strong>Почта:</strong> {{user.email}}</p>
+                            <p><strong>Информация о себе:</strong> Студент ИТИС 11-694 3 курс. Джава в венах, люблю котиков.</p>
+                            <p><strong>Логин:</strong> {{user.username}} </p>
+
+                            <button type="button" class="btn btn-primary btn-sm">Изменить</button>
+                            <a href="{% url 'logout' %}"><button class="btn btn-danger btn-sm">Выход</button></a>
+                        </div>
+                        <div class="col-md-4">
+                            <img src="/media/{{ user.username }}/images.jpg" alt="Фото" class="img-thumbnail">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock content %}

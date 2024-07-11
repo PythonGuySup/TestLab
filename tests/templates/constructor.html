@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block page1 %} Главная {% endblock page1 %}
+{% block page2 %} Авторизация {% endblock page2 %}
+
+{% block page1url %} {% url 'home_page' 1  %}{% endblock page1url %}
+{% block page2url %} {% url 'login' %}{% endblock page2url %}
+
+{% block content %}
+
+<div id="response-message" class="response-message">
+
+</div>
+<style>
+    .response-message {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .container {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 40px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    }
+
+    .padding-inside {
+    padding: 20px;
+    }
+
+</style>
+
+
+<div >
+    <div class="container">
+        <form id="test-form" >
+        {% csrf_token %}
+
+        <label for="id_title">Название теста:</label><br>
+        <input class="form-control" style="width: 20%" type="text" name="title" maxlength="60" required id="id_title" value="{{ data.title|default:'' }}"><br>
+
+        <label for="category_select">Категория:</label><br>
+        
+        <select class="form-select" aria-label="Default select example" style="width: 20%" id="category" name="category">
+            {% comment %} <option value="">Выберите категорию</option> Мне кажется это лишний пункт, если хотите, разкоментируйте {% endcomment %}
+            {% for category in data.categorys.values %}
+                <option value="{{category.name}}" {% if category.selected%} selected {% endif %}> {{ category.name }}  </option>
+            {% endfor %}
+        </select>
+
+
+        <br><label for="id_time">Время на тест:</label>
+        <input class="form-control" style="width: 10%" type="time" step="2" name="time" required id="id_time" value="{{ data.time|default:'' }}" />
+
+
+        <br><label for="id_description">Описание:</label><br>
+        <input class="form-control" style="width: 45%; " type="text" name="description" maxlength="255" required id="id_description"
+            value="{{ data.description|default:'' }}"><br>
+
+
+        <div class="padding-inside">
+            <div id="questions_block">
+
+                {% for question_id, question in data.questions.items %}
+
+                <div id="question_{{question_id}}">
+                    <label for="id_question_{{question_id}}">Вопрос:</label>
+
+                    <input class="form-control" style="width: 20%" type="text" name="id_question_{{question_id}}" maxlength="255" required
+                        id="id_question_{{question_id}}" value="{{ question.question }}">
+                    <button class="delete-question btn btn-danger" data-question-id="{{question_id}}"
+                        onclick="del_question('{{question_id}}')">Удалить вопрос...</button>
+
+                    <label for="id_multiple_ans_{{question_id}}">Несколько вариантов:</label>
+                    <input class="form-control" type="checkbox" name="multiple_ans_{{question_id}}" id="id_multiple_ans_{{question_id}}" {% if question.multiple_ans %} checked {% endif %}>
+
+                    <div class="padding-inside">
+                        <div id="answers_block_{{question_id}}">
+
+                            {%for answer_id, answer in question.answers.items %}
+
+                            <div id="answer_{{answer_id}}">
+                                <label for="id_answer_{{answer_id}}">Ответ:</label>
+                                <input class="form-control" style="width: 20%" type="text" name="answer_{{answer_id}}" maxlength="255" required
+                                    id="id_answer_{{answer_id}}" value="{{ answer.answer }}">
+                                <br><button class="delete-answer btn btn-danger" data-answer-id="{{answer_id}}"
+                                    onclick="del_answer('{{answer_id}}')">Удалить ответ...</button>
+
+                                <label for="id_right_answer_{{answer_id}}">Правильный ответ:</label>
+                                <input class="form-control" type="checkbox" name="right_answer_{{answer_id}}" id="id_right_answer_{{answer_id}}" {% if answer.right_answer %} checked {% endif %}>
+
+                            </div>
+
+                            {%endfor%}
+
+
+                        </div>
+                        <button class="add-answer_{{question_id}} btn btn-primary" data-question-id="{{question_id}}"
+                            onclick="add_answer('{{question_id}}')">Добавить ответ...</button>
+                    </div>
+
+                </div>
+
+                {% empty %}
+
+                <div id="question_1">
+                    <label for="id_question_1">Вопрос:</label>
+                    <input type="text" name="id_question_1" maxlength="255" required id="id_question_1"><button
+                        class="delete-question btn btn-danger" data-question-id="1" onclick="del_question('1')">Удалить
+                        вопрос...</button>
+
+                    <br><label for="id_multiple_ans_1">Несколько вариантов:</label>
+                    <input type="checkbox" name="multiple_ans_1" id="id_multiple_ans_1">
+
+                    <div class="padding-inside">
+                        <div id="answers_block_1">
+                            <div id="answer_1_1">
+                                <label for="id_answer_1_1">Ответ:</label>
+                                <input type="text" name="answer_1_1" maxlength="255" required id="id_answer_1_1"><button
+                                    class="delete-answer btn btn-danger" data-answer-id="1_1"
+                                    onclick="del_answer('1_1')">Удалить ответ...</button>
+
+                                <label for="id_right_answer_1_1">Правильный ответ:</label>
+                                <input type="checkbox" name="right_answer_1_1" id="id_right_answer_1_1">
+
+                            </div>
+                        </div>
+                        <button class="add-answer_1 btn btn-primary" data-question-id="1"
+                            onclick="add_answer('1')">Добавить ответ...</button>
+                    </div>
+
+                </div>
+
+                {% endfor %}
+            </div>
+            <button id="button_add_question" class="add-question btn btn-primary" onclick="add_question()">Добавить
+                вопрос...</button>
+        </div>
+
+
+
+        <button class="btn btn-success" onclick="respond()">Сохранить тест</button>
+
+
+        </form>
+    </div>
+</div>
+<script>
+    let questionCounter = {% if data.count_questions %} {{data.count_questions}} {% else %} 1 {% endif %};
+    let answerCounter = {% if data.count_answers %} {{data.count_answers}} {% else %} 1 {% endif %};
+
+    function add_question() {
+        event.preventDefault()
+
+        questionCounter++;
+        const newQuestionBlock = `
+            <div id="question_${questionCounter}">
+                <label for="id_question_${questionCounter}">Вопрос:</label>
+                <input type="text" name="id_question_${questionCounter}" maxlength="255" required id="id_question_${questionCounter}"><button class="delete-question btn btn-danger" data-question-id="${questionCounter}" onclick="del_question('${questionCounter}')">Удалить вопрос...</button></br>
+            
+                <label for="id_multiple_ans_${questionCounter}">Несколько вариантов:</label>
+                <input type="checkbox" name="multiple_ans_${questionCounter}" id="id_multiple_ans_${questionCounter}"></br>
+
+                <div class="padding-inside">
+                    <div id="answers_block_${questionCounter}">
+                        <div id="answer_${questionCounter}_1">
+                            <label for="id_answer_${questionCounter}_1">Ответ:</label>
+                            <input type="text" name="answer_${questionCounter}_1" maxlength="255" required id="id_answer_${questionCounter}_1"><button onclick="del_answer('${questionCounter}_1')" class="delete-answer btn btn-danger" data-answer-id="${questionCounter}_1">Удалить ответ...</button>
+                            
+                            <label for="id_right_answer_${questionCounter}_1">Правильный ответ:</label>
+                            <input type="checkbox" name="right_answer_${questionCounter}_1" id="id_right_answer_${questionCounter}_1"></br>
+
+                        </div>
+                    </div>
+                    <button onclick="add_answer('${questionCounter}')" class="add-answer_${questionCounter} btn btn-primary" data-question-id="${questionCounter}">Добавить ответ...</button>
+                </div>
+                </br>
+            </div>
+        `;
+        const questionsBlock = document.getElementById('questions_block');
+        questionsBlock.insertAdjacentHTML('beforeend', newQuestionBlock);
+
+    };
+
+
+    function del_question(question) {
+        event.preventDefault()
+        const questionId = question;
+        const questionBlock = document.getElementById(`question_${questionId}`);
+        questionBlock.remove();
+    }
+
+    function del_answer(answer) {
+        event.preventDefault()
+        const answerId = answer;
+        const answerBlock = document.getElementById(`answer_${answerId}`);
+        answerBlock.remove();
+    };
+
+    function add_answer(question) {
+        event.preventDefault()
+        const questionId = question;
+        answerCounter++;
+        const newAnswerBlock = `
+            <div id="answer_${questionId}_${answerCounter}">
+                <label for="id_answer_${questionId}_${answerCounter}">Ответ:</label>
+                <input type="text" name="answer_${questionId}_${answerCounter}" maxlength="255" required id="id_answer_${questionId}_${answerCounter}"><button class="delete-answer btn btn-danger" data-answer-id="${questionId}_${answerCounter}" onclick="del_answer('${questionCounter}_${answerCounter}')">Удалить ответ...</button>
+                
+                <label for="id_right_answer_${questionId}_${answerCounter}">Правильный ответ:</label>
+                <input type="checkbox" name="right_answer_${questionId}_${answerCounter}" id="id_right_answer_${questionId}_${answerCounter}"></br>
+            </div>
+        `;
+        const answersBlock = document.getElementById(`answers_block_${questionId}`);
+        answersBlock.insertAdjacentHTML('beforeend', newAnswerBlock);
+    };
+
+    function respond() {
+        event.preventDefault()
+        const testForm = document.getElementById('test-form');
+        const formData = new FormData(testForm); // Получаем данные из формы
+        const data = {}; // Создаем объект для хранения данных
+
+        // Извлекаем данные из полей формы
+        data.category = formData.get('category');
+        data.time = formData.get('time');
+        data.title = formData.get('title');
+        data.description = formData.get('description');
+        data.author = formData.get('author');
+
+        // Извлекаем данные о вопросах и ответах
+        data.questions = {};
+        const questions = document.querySelectorAll('#questions_block > div');
+        questions.forEach(questionElement => {
+            const questionId = questionElement.id;
+            data.questions[questionId] = {
+                question: questionElement.querySelector('input[name^="id_question_"]').value,
+                multiple_ans: questionElement.querySelector('input[name^="multiple_ans_"]').checked,
+                answers: {}
+            };
+
+            const answers = questionElement.querySelectorAll('#answers_block_' + questionId.split('_')[1] + ' > div');
+            answers.forEach(answerElement => {
+                const answerId = answerElement.id;
+                data.questions[questionId].answers[answerId] = {
+                    answer: answerElement.querySelector('input[name^="answer_"]').value,
+                    right_answer: answerElement.querySelector('input[name^="right_answer_"]').checked
+                };
+            });
+        });
+
+        // Преобразуем данные в JSON
+        const jsonData = JSON.stringify(data);
+        token = formData.get('csrfmiddlewaretoken')
+        // Отправляем POST запрос
+        const test_id = `{{ data.test_id|default:""}}`
+        fetch(`/tests/constructor/${test_id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'utf-8',
+                'X-CSRFToken': token
+            },
+            body: jsonData
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Получаем ответ от сервера
+                    response.text().then(data => { // Используем response.text() для получения текста
+                        console.log('Данные успешно отправлены!', data);
+                        // Выводим сообщение об успехе
+                        const responseMessage = document.getElementById('response-message');
+                        responseMessage.textContent = data; // Отображаем текст ответа
+                        responseMessage.style.backgroundColor = 'lightgreen'; // Устанавливаем цвет фона для успеха
+                    });
+                    window.location = `/tests/constructor_result/${test_id}`;
+                } else {
+                    response.text().then(data => { // Используем response.text() для получения текста
+                        console.error('Ошибка отправки данных.', data);
+                        // Выводим сообщение об ошибке
+                        const responseMessage = document.getElementById('response-message');
+                        responseMessage.textContent = data; // Отображаем текст ошибки
+                        responseMessage.style.backgroundColor = 'lightcoral'; // Устанавливаем цвет фона для ошибки
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при отправке данных:', error);
+                // Выводим сообщение об ошибке
+                const responseMessage = document.getElementById('response-message');
+                responseMessage.textContent = `Ошибка при отправке данных: ${error.message || 'Неизвестная ошибка'}`;
+                responseMessage.style.backgroundColor = 'lightcoral'; // Устанавливаем цвет фона для ошибки
+            });
+        window.scrollTo(0, 0);
+    }
+
+    function formatTime(input) {
+        // Получаем введенный текст
+        let value = input.value;
+        
+        // Удаляем некорректные символы
+        value = value.replace(/[^0-9:]/g, '');
+  
+        // Разделяем на части
+        let parts = value.split(':');
+  
+        // Ограничиваем количество частей
+        if (parts.length > 3) {
+          parts = parts.slice(0, 3);
+        }
+  
+        // Ограничиваем длину каждой части
+        parts[0] = parts[0].slice(0, 2); // Часы
+        parts[1] = parts[1].slice(0, 2); // Минуты
+        parts[2] = parts[2].slice(0, 2); // Секунды
+
+        // Проверяем валидность значений
+        if (parts[0] > 23) {
+        parts[0] = '23';
+        }
+        if (parts[1] > 59) {
+        parts[1] = '59';
+        }
+        if (parts[2] > 59) {
+        parts[2] = '59';
+        }
+
+        // Форматируем строку
+        value = parts.join(':');
+
+        // Обновляем поле ввода
+        input.value = value;
+      }
+</script>
+{% endblock content %}

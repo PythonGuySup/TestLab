@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block logo_title %} TestLab {% endblock logo_title %}
+{% block page1 %} Главная {% endblock page1 %}
+{% block page2 %} Конструктор {% endblock page2 %}
+{% block account %} Акк {% endblock account %}
+{% block page1url %} {% url 'home_page' 1  %}{% endblock page1url %}
+{% block page2url %} {% url 'constructor' %}{% endblock page2url %}
+
+
+{% block content %}
+<main class="container mt-5" >
+    <div class="row" style="width: 100%">
+        <aside class="col-md-3 pl-0" style="width: 200px;">
+            <ul class="nav flex-column">
+                <li class="nav-item mb-3">
+                    <a class="nav-link active" href="{% url 'profile' %}">Профиль</a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="{% url 'stats' %}">Статистика</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'my_tests' %}">Мои тесты</a>
+                </li>
+            </ul>
+        </aside>
+        <section class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Мои тесты</h2>
+                        {% for test in tests %}
+                             <div onclick="window.location.href='{% url 'test_detail' test.id %}';" style="display: block; cursor: pointer;">
+                                 <div class="test">
+                                     <h3>{{ test.title }}</h3>
+                                     <p>{{ test.description }}</p>
+                                 </div>
+                             </div>
+                        {% endfor %}
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock content %}
+

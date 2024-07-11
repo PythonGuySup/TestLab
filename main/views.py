@@ -1,27 +1,57 @@
 from django.shortcuts import render, redirect
-from tests.models import Test
+
+from tests.models import Category
+from users.models import UserScore
+from .utils.get_tests_slices import get_tests_slices
+from django.conf import settings
+
+from .utils.get_user_score import get_user_score
 
 
-# Create your views here.
+def error_handler(request, exception):
+    status_code = getattr(exception, 'status_code', 500)
+    template_name = f"{status_code}.html"
+    return render(request, template_name, status=status_code)
 
-def home_page(request, pg):
-    test_quantity_at_page = 4
-    test_quantity = Test.objects.all().count()
-    print(test_quantity)
-    page = int(pg)
-    how_many_pages_ = test_quantity // test_quantity_at_page
-    if test_quantity % test_quantity_at_page != 0:
-        how_many_pages_ += 1
-    tests = Test.objects.filter(id__range=(test_quantity_at_page * (page - 1) + 1, test_quantity_at_page * page))
 
-    tests_to_response = [(test.title, test.description) for test in tests]
-    pages_iterator = [i for i in range(1, how_many_pages_ + 1)]
+def home_page(request, page):
+    if 'search_query' in request.POST:
+        search_query = request.POST['search_query']
+    else:
+        search_query = None
 
-    print(pages_iterator)
-    print(tests)
-    context = {'tests': tests_to_response, 'pages': pages_iterator, 'last_page': how_many_pages_}
+    if 'ordering' in request.POST:
+        ordering = request.POST['ordering']
+    else:
+        ordering = 'created_at'
+
+    if 'category' in request.GET:
+        selected_category = request.GET['category']
+    else:
+        selected_category = None
+
+    tests, how_many_pages = get_tests_slices(page, search_query, ordering, selected_category)
+
+    tests_to_response = [(test.title, test.description, test.id) for test in tests]
+    pages_iterator = [i for i in range(1, how_many_pages + 1)]
+    categories = Category.objects.all()
+    user_score = None
+
+    user_score = get_user_score(request.user)
+
+    context = {
+        'tests': tests_to_response,
+        'pages': pages_iterator,
+        'last_page': how_many_pages,
+        'ordering': ordering,
+        'categories': categories,
+        'selected_category': selected_category,
+        'search_query': search_query,
+        'user_score': user_score,
+    }
+
     return render(request, 'main.html', context)
 
 
-def home(request):
+def home_redirect(request):
     return redirect('home/1')

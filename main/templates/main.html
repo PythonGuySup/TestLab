@@ -1,70 +1,138 @@
 {% extends "base.html" %}
 
+
 {% block page1 %} Конструктор {% endblock page1 %}
 {% block page2 %} Авторизация {% endblock page2 %}
+{% block page1url %} {% url 'constructor' %}{% endblock page1url %}
+{% block page2url %} {% url 'login' %}{% endblock page2url %}
+
 
 {% block content %}
-    <main>
-        <aside>
-            <h2><b>Категории</b></h2>
-            <section class="categories">
-                <ul>
-                    <li>Математика</li>
-                    <li>Информатика</li>
-                    <li>Java</li>
-                    <li>Лингвистика</li>
-                </ul>
-            </section>
-            <section class="statistics">
-                <h2><b>Статистика</b></h2>
-                <p>Решено: <b>9</b> </p>
-                <p>Средний балл: <b>4.7</b></p>
-            </section>
-            <footer>
-                <p class="text-primary">testlab@gmail.com</p>
-                <p>Kazan, Republic of Tatarstan</p>
-            </footer>
-        </aside>
-        <section class="content">
-            <input type="text" placeholder="Поиск" class="search">
-            {% for test in tests %}
-                <div class="test">
-                    <h3>{{ test.0 }} </h3>
-                    <p> {{ test.1 }} </p>
-                </div>
-            {% endfor %}
 
 
-            <div class="pagination">
-                <div class="arrow-6">
+<main>
+
+    <aside>
+        <button class="collapsible"><b>Категории</b></button>
+        <div class="content">
+            {% if categories %}
+                <li><a href="?">Все</a></li>
+                {% for category in categories %}
+                    <li>
+                        <a href="?category={{ category.id }}">{{ category.name }}</a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+        </div>
 
 
-                    <a href="{% url 'home_page' pg=1 %}" class="#"> <svg width="18px" height="17px" viewBox="0 0 18 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    
+        <button class="collapsible"><b>Статистика</b></button>
+        <div class="content">
+            {% if user_score %}
+                <p>Средний балл: <b>{{ user_score.average_score }}</b></p>
+                <p>Решено: <b>{{ user_score.solved_tests }}</b></p>
+            {% else %}
+                <p>Средний балл: <b>0,0</b></p>
+                <p>Решено: <b>0</b></p>
+                <p>К сожалению, не удалось получить Вашу статистику, так как Вы не авторизованы!</p>
+                <a href="{% url 'login' %}"> <button class="btn btn-primary"> Авторизоваться </button></a>
+            {% endif %}
+
+        </div>
+
+
+    </aside>
+    <section class="other_content">
+        <form method="POST" class="post-form form-inline">{% csrf_token %}
+            <div class="form-group mr-3">
+                <input type="text" name="search_query" placeholder="Поиск" class="search form-control">
+            </div>
+            <div class="form-group mr-3">
+                <label for="ordering">Сортировать по:</label>
+                <select name="ordering" id="ordering" class="form-control">
+                    <option value="created_at" {% if ordering == 'created_at' %}selected{% endif %}>По умолчанию</option>
+                    <option value="title" {% if ordering == 'title' %}selected{% endif %}>От А до Я</option>
+                    <option value="-title" {% if ordering == '-title' %}selected{% endif %}>От Я до А</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Применить</button>
+        </form>
+    
+        {% for test in tests %}
+             <div onclick="window.location.href='{% url 'test_detail' test.2 %}';" style="display: block; cursor: pointer;">
+                 <div class="test">
+                     <h3>{{ test.0 }}</h3>
+                     <p>{{ test.1 }}</p>
+                 </div>
+             </div>
+        {% endfor %}
+
+
+        <div class="pagination">
+            <div class="arrow-6">
+
+
+                <a href="{% url 'home_page' 1  %}" class="#">
+                    <svg width="18px" height="17px" viewBox="0 0 18 17"
+                         version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                         <g transform="translate(8.500000, 8.500000) scale(-1, 1) translate(-8.500000, -8.500000)">
-                            <polygon class="arrow-6-pl" points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596"></polygon>
-                            <polygon class="arrow-6-pl-fixed" points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596"></polygon>
-                            <path d="M-1.48029737e-15,0.56157424 L-1.48029737e-15,16.1929159 L9.708,8.33860465 L-2.66453526e-15,0.56157424 L-1.48029737e-15,0.56157424 Z M1.33333333,3.30246869 L7.62533333,8.34246869 L1.33333333,13.4327013 L1.33333333,3.30246869 L1.33333333,3.30246869 Z"></path>
+                            <polygon class="arrow-6-pl"
+                                     points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596">
+                            </polygon>
+                            <polygon class="arrow-6-pl-fixed"
+                                     points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596">
+                            </polygon>
+                            <path
+                                    d="M-1.48029737e-15,0.56157424 L-1.48029737e-15,16.1929159 L9.708,8.33860465 L-2.66453526e-15,0.56157424 L-1.48029737e-15,0.56157424 Z M1.33333333,3.30246869 L7.62533333,8.34246869 L1.33333333,13.4327013 L1.33333333,3.30246869 L1.33333333,3.30246869 Z">
+                            </path>
                         </g>
-                    </svg></a>
+                    </svg>
+                </a>
 
-                     {% for page in pages %}
-                    <a href="{% url 'home_page' pg=page %}" class="btn" >{{ page }}</a>
+                {% for page in pages %}
+                <a href="{% url 'home_page' page  %}" class="btn"><b>{{ page }}</b></a>
+                
 
-                     {% endfor %}
-                    <a href="{% url 'home_page' pg=last_page %}" class="#"><svg width="18px" height="17px" viewBox="-1 0 18 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                {% endfor %}
+                <a href="{% url 'home_page' last_page %}" class="#">
+                    <svg width="18px" height="17px" viewBox="-1 0 18 17"
+                         version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                         <g>
-                            <polygon class="arrow-6-pl" points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596"></polygon>
-                            <polygon class="arrow-6-pl-fixed" points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596"></polygon>
-                            <path d="M-4.58892184e-16,0.56157424 L-4.58892184e-16,16.1929159 L9.708,8.33860465 L-1.64313008e-15,0.56157424 L-4.58892184e-16,0.56157424 Z M1.33333333,3.30246869 L7.62533333,8.34246869 L1.33333333,13.4327013 L1.33333333,3.30246869 L1.33333333,3.30246869 Z"></path>
+                            <polygon class="arrow-6-pl"
+                                     points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596">
+                            </polygon>
+                            <polygon class="arrow-6-pl-fixed"
+                                     points="16.3746667 8.33860465 7.76133333 15.3067621 6.904 14.3175671 14.2906667 8.34246869 6.908 2.42790698 7.76 1.43613596">
+                            </polygon>
+                            <path
+                                    d="M-4.58892184e-16,0.56157424 L-4.58892184e-16,16.1929159 L9.708,8.33860465 L-1.64313008e-15,0.56157424 L-4.58892184e-16,0.56157424 Z M1.33333333,3.30246869 L7.62533333,8.34246869 L1.33333333,13.4327013 L1.33333333,3.30246869 L1.33333333,3.30246869 Z">
+                            </path>
                         </g>
-                    </svg></a>
-
-                </div>
+                    </svg>
+                </a>
 
             </div>
 
+        </div>
 
 
-        </section>
-    </main>
+    </section>
+</main>
+<script>
+
+    let coll = document.getElementsByClassName('collapsible');
+    for (let i = 0; i < coll.length; i++) {
+        coll[i].addEventListener('click', function () {
+            this.classList.toggle('active');
+            let content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            }
+        })
+    }
+
+</script>
 {% endblock content %}
