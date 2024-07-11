@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -33,7 +35,8 @@ class Answer(models.Model):
 class Result(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    mark = models.FloatField(null=True)
-    start_at = models.DateTimeField(null=True)
-    finish_at = models.DateTimeField(null=True)
-    time = models.TimeField(null=True)
+    mark = models.IntegerField(null=True)
+    start_at = models.DateTimeField(null=True, auto_now_add=True)
+    finish_at = models.DateTimeField(null=True, auto_now_add=True)
+    time = models.TimeField(null=True, auto_now_add=True)
+

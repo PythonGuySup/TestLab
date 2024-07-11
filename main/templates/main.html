@@ -29,7 +29,7 @@
                     <a class="nav-link" href="{% url 'register' %}">Sign up</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login_view' %}">Log in</a>
+                    <a class="nav-link" href="{% url 'login' %}">Log in</a>
                 </li>
                 {% endif %}
             </ul>
@@ -51,8 +51,15 @@
     
         <button class="collapsible"><b>Статистика</b></button>
         <div class="content">
-            <p>Средний балл: <b>6.7</b></p>
-            <p>Решено: <b>9</b></p>
+            {% if user_score %}
+                <p>Средний балл: <b>{{ user_score.average_score }}</b></p>
+                <p>Решено: <b>{{ user_score.solved_tests }}</b></p>
+            {% else %}
+                <p>Средний балл: <b>0,0</b></p>
+                <p>Решено: <b>0</b></p>
+                <p>К сожалению, не удалось получить Вашу статистику, так как Вы не авторизованы!</p>
+                <a href="{% url 'login' %}"> <button class="btn btn-primary"> Авторизоваться </button></a>
+            {% endif %}
 
         </div>
 

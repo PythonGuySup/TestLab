@@ -2,9 +2,23 @@
 
 {% block logo_title %} TestLab {% endblock logo_title %}
 {% block page1 %} Главная {% endblock page1 %}
-{% block page2 %} Конструктор {% endblock page2 %}
-{% block account %} Акк {% endblock account %}
+{% block page2 %} Создать тест {% endblock page2 %}
+{% block page1url %} {% url 'home_redirect' %} {% endblock page1url %}
+{% block page2url %} {% url 'constructor' %} {% endblock page2url %}
 {% block title %}Результат теста{% endblock title %}
+
+<style>
+        h3 {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            color: #c00;
+        }
+        p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+</style>
 
 {% block content %}
     <div class="container my-5">
@@ -12,7 +26,11 @@
              <div class="card-body">
                  <h4 class="card-title">Результат теста {{ test.title }}</h4>
                  <p class="card-text">Правильных ответов: {{ result }} </p>
-                 <p class="card-text">Оценка: </p>
+                 <p class="card-text">Оценка: {{ mark }}%</p>
+                 {% if not authenticated %}
+                    <p>К сожалению, не удалось сохранить Ваш результат, так как Вы не авторизованы!</p>
+                     <a href="{% url 'login' %}"> <button class="btn btn-primary"> Авторизоваться </button></a>
+                 {% endif %}
              </div>
          </div>
      </div>

@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
 from tests.forms import ValidTest, ValidQuestion, ValidAnswer
-from tests.models import Test, Question, Category, Answer
+from tests.models import Test, Question, Category, Answer, Result
 from datetime import datetime
 from json import JSONDecodeError, loads
 
@@ -13,6 +13,9 @@ from tests.utils.reformat_data import reformat_data
 from tests.utils.update_session import update_session
 from tests.utils.init_session import init_session
 from django.template.defaulttags import register
+
+from tests.utils.update_user_score import update_user_score
+from users.models import UserScore
 
 
 @register.filter
@@ -67,12 +70,15 @@ def test_questions(request, test_id):
     return render(request, 'test_questions.html', context)
 
 
-
-
+@transaction.atomic
 def test_result(request, test_id):
     test = Test.objects.get(id=test_id)
+    user = request.user if request.user.is_authenticated else None
+    question_count = Question.objects.filter(test=test).count()
     session_dict = request.session['dict_{test_id}'.format(test_id=test_id)]
+    authenticated = True
     result = 0
+    mark = 0
 
     for i in range(1, session_dict['pages'] + 1):
         for question, answer_dict in session_dict['page_{i}'.format(i=i)].items():
@@ -82,9 +88,29 @@ def test_result(request, test_id):
                     if db_answer.right_answer:
                         result += 1
 
-    flush_test_in_session(request, test.id)
+    mark = result / question_count
+    mark = round(mark, 2)
+    mark *= 100
+    mark = int(mark)
 
-    return render(request, 'test_result.html', {'test': test, 'result': result})
+    if user:
+        try:
+            result_obj = Result.objects.get(test=test)
+            result_obj.mark = mark
+            result_obj.save(update_fields=['mark'])
+        except Result.DoesNotExist:
+            Result.objects.create(test=test, user=user, mark=mark)
+        try:
+            user_score = UserScore.objects.get(user=user)
+        except UserScore.DoesNotExist:
+            UserScore.objects.create(user=user)
+            user_score = UserScore.objects.get(user=user)
+        update_user_score(user, user_score)
+
+    else:
+        authenticated = False
+    flush_test_in_session(request, test.id)
+    return render(request, 'test_result.html', {'test': test, 'result': result, 'mark': mark, 'authenticated': authenticated})
 
 
 def create_test(test, test_id, user):
@@ -119,7 +145,6 @@ def rollback(message, details):
 
 @transaction.atomic
 def constructor_post(request, test_id):
-
     try:
 
         params_json = loads(request.body)
