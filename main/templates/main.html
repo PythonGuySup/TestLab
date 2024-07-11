@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 
-{% block page1 %} Конструктор {% endblock page1 %}
+{% block page1 %} Создать Тест {% endblock page1 %}
 {% block page2 %} Авторизация {% endblock page2 %}
 {% block page1url %} {% url 'constructor' %}{% endblock page1url %}
 {% block page2url %} {% url 'login' %}{% endblock page2url %}
@@ -13,16 +13,42 @@
 <main>
 
     <aside>
+        <div class="col-md-4">
+            <img src="path_to_image" alt="Фото" class="img-thumbnail">
 
+
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                <li>
+                    <a href="{% url 'profile' %}" role="button" aria-expanded="false" style="text-decoration: none">
+                        <b>{{ user.username }}</b>
+                    </a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register' %}">Sign up</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login_view' %}">Log in</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+  
         <button class="collapsible"><b>Категории</b></button>
         <div class="content">
-            <p>Математика</p>
-            <p>Информатика</p>
-            <p>Java</p>
-            <p>Лингвистика</p>
+            {% if categories %}
+                <li><a href="?">Все</a></li>
+                {% for category in categories %}
+                    <li>
+                        <a href="?category={{ category.id }}">{{ category.name }}</a>
+                    </li>
+                {% endfor %}
+            {% endif %}
         </div>
 
 
+    
         <button class="collapsible"><b>Статистика</b></button>
         <div class="content">
             <p>Средний балл: <b>6.7</b></p>
@@ -33,15 +59,28 @@
 
     </aside>
     <section class="other_content">
-        <form method="POST" class="post-form">{% csrf_token %}
-            <input type="text" name="search_query" placeholder="Поиск" class="search">
+        <form method="POST" class="post-form form-inline">{% csrf_token %}
+            <div class="form-group mr-3">
+                <input type="text" name="search_query" placeholder="Поиск" class="search form-control">
+            </div>
+            <div class="form-group mr-3">
+                <label for="ordering">Сортировать по:</label>
+                <select name="ordering" id="ordering" class="form-control">
+                    <option value="created_at" {% if ordering == 'created_at' %}selected{% endif %}>По умолчанию</option>
+                    <option value="title" {% if ordering == 'title' %}selected{% endif %}>От А до Я</option>
+                    <option value="-title" {% if ordering == '-title' %}selected{% endif %}>От Я до А</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Применить</button>
         </form>
-
+    
         {% for test in tests %}
-        <div class="test">
-            <h3>{{ test.0 }} </h3>
-            <p> {{ test.1 }} </p>
-        </div>
+             <div onclick="window.location.href='{% url 'test_detail' test.2 %}';" style="display: block; cursor: pointer;">
+                 <div class="test">
+                     <h3>{{ test.0 }}</h3>
+                     <p>{{ test.1 }}</p>
+                 </div>
+             </div>
         {% endfor %}
 
 
@@ -68,6 +107,7 @@
 
                 {% for page in pages %}
                 <a href="{% url 'home_page' page  %}" class="btn"><b>{{ page }}</b></a>
+                
 
                 {% endfor %}
                 <a href="{% url 'home_page' last_page %}" class="#">

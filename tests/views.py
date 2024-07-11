@@ -1,70 +1,90 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator
-from django.shortcuts import render
-from django.conf import settings
+from django.shortcuts import render, redirect
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
 from tests.forms import ValidTest, ValidQuestion, ValidAnswer
 from tests.models import Test, Question, Category, Answer
 from datetime import datetime
 from json import JSONDecodeError, loads
 
-def error_500_view(request, exception):
-    return render(request, '500.html')
+from tests.utils.flush_test_in_session import flush_test_in_session
+from tests.utils.reformat_data import reformat_data
+from tests.utils.update_session import update_session
+from tests.utils.init_session import init_session
+from django.template.defaulttags import register
 
-def error_410_view(request, exception):
-    return render(request, '410.html')
 
-def error_409_view(request, exception):
-    return render(request, '409.html')
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key).items()
 
-def error_404_view(request, exception):
-    return render(request, '404.html')
 
-def error_403_view(request, exception):
-    return render(request, '403.html')
+def error_handler(request, exception):
+    status_code = getattr(exception, 'status_code', 500)
+    template_name = f"{status_code}.html"
+    return render(request, template_name, status=status_code)
 
-def error_401_view(request, exception):
-    return render(request, '401.html')
-
-def error_400_view(request, exception):
-    return render(request, '400.html')
-
-def error_304_view(request, exception):
-    return render(request, '304.html')
-
-def error_204_view(request, exception):
-    return render(request, '204.html')
-
-def error_201_view(request, exception):
-    return render(request, '201.html')
-
-def error_200_view(request, exception):
-    return render(request, '200.html')
 
 def test_detail(request, test_id):
     test = Test.objects.get(pk=test_id)
     return render(request, 'test_detail.html', {'test': test})
 
+
 def test_questions(request, test_id):
+    if request.method == 'POST':
+        update_session(request, test_id)
+        if request.POST.get('end') == '':
+            return redirect('test_result', test_id)
+    else:
+        if not request.session.get(f'dict_{test_id}'.format(test_id=test_id), False):
+            init_session(request, test_id)
+
     test = Test.objects.get(id=test_id)
-    questions_list = Question.objects.filter(test=test)
-    paginator = Paginator(questions_list, 4)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_number = request.session['dict_{test_id}'.format(test_id=test_id)]['current_page']
+    page_obj = request.session['dict_{test_id}'.format(test_id=test_id)]['page_{i}'.format(i=page_number)]
+    page_obj = reformat_data(page_obj)
+    has_next = False
+    has_previous = False
+    is_last_page = False
+
+    if request.session['dict_{test_id}'.format(test_id=test_id)]['current_page'] < \
+            request.session['dict_{test_id}'.format(test_id=test_id)]['pages']:
+        has_next = True
+    if request.session['dict_{test_id}'.format(test_id=test_id)]['current_page'] > 1:
+        has_previous = True
+    if page_number == request.session['dict_{test_id}'.format(test_id=test_id)]['pages']:
+        is_last_page = True
 
     context = {
         'test': test,
-        'page_obj': page_obj
+        'page_obj': page_obj,
+        'has_next': has_next,
+        'has_previous': has_previous,
+        "is_last_page": is_last_page
     }
 
     return render(request, 'test_questions.html', context)
 
 
+
+
 def test_result(request, test_id):
     test = Test.objects.get(id=test_id)
-    return render(request, 'test_result.html', {'test': test})
+    session_dict = request.session['dict_{test_id}'.format(test_id=test_id)]
+    result = 0
+
+    for i in range(1, session_dict['pages'] + 1):
+        for question, answer_dict in session_dict['page_{i}'.format(i=i)].items():
+            for answer, status in answer_dict.items():
+                db_answer = Answer.objects.get(id=answer)
+                if status:
+                    if db_answer.right_answer:
+                        result += 1
+
+    flush_test_in_session(request, test.id)
+
+    return render(request, 'test_result.html', {'test': test, 'result': result})
 
 
 def create_test(test, test_id, user):
@@ -94,21 +114,21 @@ def clear_questions(test_id):
 
 def rollback(message, details):
     transaction.set_rollback(True)
-    return HttpResponseBadRequest(message, str(details))
+    return HttpResponseBadRequest(message + str(details))
 
 
 @transaction.atomic
 def constructor_post(request, test_id):
-    print(test_id)
+
     try:
 
         params_json = loads(request.body)
         if Test.objects.filter(id=test_id).exists():
             test = Test.objects.get(id=test_id)
-            
+
             if test.author != request.user:
                 raise PermissionDenied
-            
+
             test_form = ValidTest(params_json, instance=test)
         else:
             test_form = ValidTest(params_json)
@@ -130,28 +150,31 @@ def constructor_post(request, test_id):
                         answer_form = ValidAnswer(answer_json)
                         if answer_form.is_valid():
                             if answer_form.cleaned_data['right_answer']:
-                                count_right += 1 
+                                count_right += 1
                             create_answer(answer_form, question_form.instance)
                         else:
-                            return rollback('invalid answer data:' + str(answer_json))
-                        
+                            return rollback('invalid answer data:', str(answer_json))
+
                     if not count_right:
-                        return rollback('At least one answer must be correct:' + str(question_form.cleaned_data['answers']))
+                        return rollback(
+                            'At least one answer must be correct:', str(question_form.cleaned_data['answers']))
                     elif question_form.cleaned_data['multiple_ans'] and count_right < 2:
-                        return rollback('You must provide at least 2 correct answers:' + str(question_form.cleaned_data['answers']))
+                        return rollback(
+                            'You must provide at least 2 correct answers:', str(question_form.cleaned_data['answers']))
                     elif not question_form.cleaned_data['multiple_ans'] and count_right >= 2:
-                        return rollback('You must specify only 1 correct answer:' + str(question_form.cleaned_data['answers']))
+                        return rollback(
+                            'You must specify only 1 correct answer:', str(question_form.cleaned_data['answers']))
                 else:
-                    return rollback('invalid question data:' + str(question_json))
+                    return rollback('invalid question data:', str(question_json))
 
         else:
-            return rollback('invalid test data:' + str(params_json))
+            return rollback('invalid test data:', str(params_json))
 
         # transaction.set_rollback(True) # отключил транзакцию для тестов
         return HttpResponse("Test add sucsessfull")
 
     except JSONDecodeError:
-        return rollback('invalid stream params to JSON: ' + str(request.body))
+        return rollback('invalid stream params to JSON: ', str(request.body))
 
     except Exception as E:
         transaction.set_rollback(True)

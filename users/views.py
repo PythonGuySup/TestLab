@@ -4,7 +4,12 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from .forms import RegistrationForm
 from main.views import home_redirect
+from django.conf import settings
 
+def error_handler(request, exception):
+    status_code = getattr(exception, 'status_code', 500)
+    template_name = f"{status_code}.html"
+    return render(request, template_name, status=status_code)
 
 def profile(request):
     return render(request, 'profile.html')

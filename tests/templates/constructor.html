@@ -31,6 +31,7 @@
 
 </style>
 
+
 <div >
     <div class="container">
         <form id="test-form" >
@@ -295,5 +296,43 @@
             });
         window.scrollTo(0, 0);
     }
+
+    function formatTime(input) {
+        // Получаем введенный текст
+        let value = input.value;
+        
+        // Удаляем некорректные символы
+        value = value.replace(/[^0-9:]/g, '');
+  
+        // Разделяем на части
+        let parts = value.split(':');
+  
+        // Ограничиваем количество частей
+        if (parts.length > 3) {
+          parts = parts.slice(0, 3);
+        }
+  
+        // Ограничиваем длину каждой части
+        parts[0] = parts[0].slice(0, 2); // Часы
+        parts[1] = parts[1].slice(0, 2); // Минуты
+        parts[2] = parts[2].slice(0, 2); // Секунды
+
+        // Проверяем валидность значений
+        if (parts[0] > 23) {
+        parts[0] = '23';
+        }
+        if (parts[1] > 59) {
+        parts[1] = '59';
+        }
+        if (parts[2] > 59) {
+        parts[2] = '59';
+        }
+
+        // Форматируем строку
+        value = parts.join(':');
+
+        // Обновляем поле ввода
+        input.value = value;
+      }
 </script>
 {% endblock content %}
