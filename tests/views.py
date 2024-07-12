@@ -209,12 +209,12 @@ def constructor_get(request, test_id):
         count_answers = 0
         for i, question in enumerate(questions):
             count_questions += 1
-            data['questions'][f'{i + 1}'] = {'question': question.question, 'multiple_ans': question.multiple_ans,
+            data['questions'][f'{i + 1}'] = {'text': question.text, 'multiple_ans': question.multiple_ans,
                                              'answers': {}}
             answers = Answer.objects.filter(question=question)
             for j, answer in enumerate(answers):
                 count_answers += 1
-                data['questions'][f'{i + 1}']['answers'][f'{i}_{j}'] = {'answer': answer.answer,
+                data['questions'][f'{i + 1}']['answers'][f'{i}_{j}'] = {'text': answer.text,
                                                                         'right_answer': answer.right_answer}
 
         data['count_questions'] = count_questions

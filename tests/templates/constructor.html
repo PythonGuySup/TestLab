@@ -68,7 +68,7 @@
                     <label for="id_question_{{question_id}}">Вопрос:</label>
 
                     <input class="form-control" style="width: 20%" type="text" name="id_question_{{question_id}}" maxlength="255" required
-                        id="id_question_{{question_id}}" value="{{ question.question }}">
+                        id="id_question_{{question_id}}" value="{{ question.text }}">
                     <button class="delete-question btn btn-danger" data-question-id="{{question_id}}"
                         onclick="del_question('{{question_id}}')">Удалить вопрос...</button>
 
@@ -83,7 +83,7 @@
                             <div id="answer_{{answer_id}}">
                                 <label for="id_answer_{{answer_id}}">Ответ:</label>
                                 <input class="form-control" style="width: 20%" type="text" name="answer_{{answer_id}}" maxlength="255" required
-                                    id="id_answer_{{answer_id}}" value="{{ answer.answer }}">
+                                    id="id_answer_{{answer_id}}" value="{{ answer.text }}">
                                 <br><button class="delete-answer btn btn-danger" data-answer-id="{{answer_id}}"
                                     onclick="del_answer('{{answer_id}}')">Удалить ответ...</button>
 
@@ -234,7 +234,7 @@
         questions.forEach(questionElement => {
             const questionId = questionElement.id;
             data.questions[questionId] = {
-                question: questionElement.querySelector('input[name^="id_question_"]').value,
+                text: questionElement.querySelector('input[name^="id_question_"]').value,
                 multiple_ans: questionElement.querySelector('input[name^="multiple_ans_"]').checked,
                 answers: {}
             };
@@ -243,7 +243,7 @@
             answers.forEach(answerElement => {
                 const answerId = answerElement.id;
                 data.questions[questionId].answers[answerId] = {
-                    answer: answerElement.querySelector('input[name^="answer_"]').value,
+                    text: answerElement.querySelector('input[name^="answer_"]').value,
                     right_answer: answerElement.querySelector('input[name^="right_answer_"]').checked
                 };
             });

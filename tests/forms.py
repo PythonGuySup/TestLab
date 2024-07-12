@@ -16,7 +16,7 @@ class ValidQuestion(forms.ModelForm):
 
     class Meta:
         model = Question
-        fields = ['question', 'multiple_ans']
+        fields = ['text', 'multiple_ans']
 
     answers = forms.JSONField()
 
@@ -24,5 +24,5 @@ class ValidQuestion(forms.ModelForm):
 class ValidAnswer(forms.ModelForm):
     class Meta:
         model = Answer
-        fields = ['answer', 'right_answer']
+        fields = ['text', 'right_answer']
 
